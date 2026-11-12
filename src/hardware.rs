@@ -126,12 +126,21 @@ fn estimate_bw(_cores: u32) -> f64 {
     40.0 // ~2ch DDR4-3200; conservative default
 }
 
-/// Try to detect a discrete GPU. Best-effort; returns empty model + 0 VRAM if none.
-fn detect_gpu() -> (String, f64) {
-    #[cfg(target_os = "windows")]
-    {
-        // nvidia-smi or /proc-style; keep it simple.
-        if let Ok(out) = std::process::Command::new("nvidia-smi")
+/// Run `nvidia-smi` (first in PATH, then in the standard Windows install
+/// location) and return `(gpu_model_name, vram_gib)`, or `(0, 0)` on failure.
+fn run_nvidia_smi() -> (String, f64) {
+    // Try the standard Windows install path before falling back to PATH.
+    let candidates: &[&str] = if cfg!(target_os = "windows") {
+        &[
+            r"C:\Program Files\NVIDIA Corporation\NVSMI\nvidia-smi.exe",
+            "nvidia-smi",
+        ]
+    } else {
+        &["nvidia-smi"]
+    };
+
+    for exe in candidates {
+        if let Ok(out) = std::process::Command::new(exe)
             .args(["--query-gpu=name,memory.total", "--format=csv,noheader"])
             .output()
         {
@@ -153,38 +162,32 @@ fn detect_gpu() -> (String, f64) {
                 }
             }
         }
-        (String::new(), 0.0)
+    }
+    (String::new(), 0.0)
+}
+
+/// Try to detect a discrete GPU. Best-effort; returns empty model + 0 VRAM if none.
+fn detect_gpu() -> (String, f64) {
+    #[cfg(target_os = "windows")]
+    {
+        run_nvidia_smi()
     }
     #[cfg(target_os = "macos")]
     {
-        (String::from("Apple GPU (unified)"), 8.0)
+        // Apple silicon unified memory: VRAM = 75 % of system RAM (the default
+        // Apple GPU allocation).  Query sysinfo directly to avoid recursing
+        // into `detect()`.
+        let mut sys = sysinfo::System::new();
+        sys.refresh_memory();
+        let ram_gib = sys.total_memory() as f64 / (1024.0 * 1024.0 * 1024.0);
+        (
+            String::from("Apple GPU (unified)"),
+            (ram_gib * 0.75).max(8.0),
+        )
     }
     #[cfg(target_os = "linux")]
     {
-        if let Ok(out) = std::process::Command::new("nvidia-smi")
-            .args(["--query-gpu=name,memory.total", "--format=csv,noheader"])
-            .output()
-        {
-            let s = String::from_utf8_lossy(&out.stdout);
-            if !s.trim().is_empty() {
-                let (name, mem) = s
-                    .lines()
-                    .next()
-                    .unwrap_or("")
-                    .split_once(',')
-                    .map(|(a, b)| (a.trim().to_string(), b.trim().to_string()));
-                if let (Some(name), Some(mem)) = (name, mem) {
-                    let gib: f64 = mem
-                        .trim()
-                        .trim_end_matches(" MiB")
-                        .parse::<f64>()
-                        .unwrap_or(0.0)
-                        / 1024.0;
-                    return (name, gib);
-                }
-            }
-        }
-        (String::new(), 0.0)
+        run_nvidia_smi()
     }
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     {

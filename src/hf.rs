@@ -83,13 +83,18 @@ fn parse_model_meta(m: &HfModel, repo_id: &str) -> (f64, String, u32, Vec<String
 }
 
 fn guess_params(id: &str) -> f64 {
-    let re = regex::Regex::new(r"(\d+(?:\.\d+)?)\s*b\b|(\d+(?:\.\d+)?)b").unwrap();
+    // Matches patterns like "8b", "7.5b", "120b" in the already-lowercased id.
+    let re = regex::Regex::new(r"(\d+(?:\.\d+)?)\s*b\b").unwrap();
     if let Some(m) = re.captures(id) {
-        if let Some(g) = m.get(1).or_else(|| m.get(2)) {
+        if let Some(g) = m.get(1) {
             return g.as_str().parse::<f64>().unwrap_or(1.0);
         }
     }
-    // Fallback by family.
+    // Known model families that do NOT carry an "Nb" marker in the name.
+    if let Some(p) = known_family_params(id) {
+        return p;
+    }
+    // Fallback by substring.
     if id.contains("7b") {
         7.0
     } else if id.contains("13b") {
@@ -101,6 +106,108 @@ fn guess_params(id: &str) -> f64 {
     } else {
         8.0
     }
+}
+
+/// Look up a parameter count (in billions) for well-known model families
+/// whose repo name does not contain an explicit "Nb" token.
+fn known_family_params(id: &str) -> Option<f64> {
+    // Most specific patterns first so "gpt-oss-20b" beats "gpt-oss".
+    let table: &[(&str, f64)] = &[
+        // GPT-oss
+        ("gpt-oss-20b", 20.0),
+        ("gpt-oss-120b", 120.0),
+        ("gpt-oss", 20.0),
+        // GPT-2
+        ("gpt-2", 1.5),
+        // Phi
+        ("phi-3-mini", 3.8),
+        ("phi-3-medium", 14.0),
+        ("phi-3", 7.0),
+        ("phi-2", 2.7),
+        ("phi-1_5", 1.3),
+        ("phi-15", 1.3),
+        ("phi-1", 1.3),
+        ("phi-0.5", 0.4),
+        // Gemma
+        ("gemma-2-27b", 27.0),
+        ("gemma-2-9b", 9.0),
+        ("gemma-2-2b", 2.0),
+        ("gemma-1-7b", 7.0),
+        ("gemma-1-2b", 2.0),
+        ("gemma", 7.0),
+        // SmolLM
+        ("smollm2-360m", 0.36),
+        ("smollm2-135m", 0.135),
+        ("smollm2-17b", 17.0),
+        ("smollm2-1.6b", 1.6),
+        ("smollm2", 1.6),
+        ("smollm", 1.7),
+        // TinyLlama
+        ("tinyllama", 1.1),
+        // OLMo
+        ("olmo-2-1124b", 1.124),
+        ("olmo-2-32b", 32.0),
+        ("olmo-2-13b", 13.0),
+        ("olmo-2-7b", 7.0),
+        ("olmo-1-33b", 33.0),
+        ("olmo-1-13b", 13.0),
+        ("olmo-1-7b", 7.0),
+        ("olmo-1-3b", 3.0),
+        ("olmo", 7.0),
+        // Falcon
+        ("falcon-180b", 180.0),
+        ("falcon-40b", 40.0),
+        ("falcon", 40.0),
+        // MPT
+        ("mpt-30b", 30.0),
+        ("mpt-7b", 7.0),
+        ("mpt", 7.0),
+        // BLOOM
+        ("bloom-176b", 176.0),
+        ("bloom-7b", 7.0),
+        ("bloom-3b", 3.0),
+        ("bloom-1.3b", 1.3),
+        ("bloom", 3.0),
+        // LLaMA 4
+        ("llama-4-scout", 16.0),
+        ("llama-4-maverick", 17.0),
+        // Mistral (non-size-suffixed)
+        ("mistral-small", 24.0),
+        ("mistral-medium", 12.0),
+        ("mistral-large", 67.4),
+        ("mixtral-8x7b", 47.0),
+        ("mixtral-8x22b", 129.0),
+        // DeepSeek
+        ("deepseek-v3", 671.0),
+        ("deepseek-r1", 671.0),
+        ("deepseek-chat", 671.0),
+        ("deepseek-coder", 33.0),
+        // Audio / vision / embedding – give a reasonable param count so the
+        // perf table is not absurd.
+        ("whisper-large-v3", 1.55),
+        ("whisper-large", 1.55),
+        ("whisper-medium", 0.76),
+        ("whisper-small", 0.24),
+        ("whisper-base", 0.077),
+        ("whisper-tiny", 0.039),
+        ("whisper", 1.55),
+        ("bert-base", 0.11),
+        ("bert-large", 0.34),
+        ("bert", 0.11),
+        ("clip-vit", 0.4),
+        ("clip", 0.4),
+        ("stable-diffusion", 2.6),
+        ("sdxl", 2.6),
+        ("nomic-embed", 0.137),
+        ("mxbai-embed", 0.85),
+        ("all-mpnet", 0.12),
+        ("all-minilm", 0.12),
+        ("bge-small", 0.11),
+        ("bge-base", 0.11),
+        ("bge-large", 0.34),
+        ("bge", 0.11),
+    ];
+    table.iter().find(|(pat, _)| id.contains(pat)).map(|(_, p)| *p)
 }
 
 fn guess_context(id: &str) -> u32 {

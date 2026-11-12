@@ -97,24 +97,33 @@ pub fn quants_for_model(model: &Model) -> Vec<Quant> {
         .collect()
 }
 
-/// Recommend a quant based on available VRAM. Prefer the best (highest index)
-/// quality that fits in VRAM. If the machine has no usable VRAM (CPU-only),
-/// fall back to a CPU-friendly Q4_K_M.
+/// Recommend a quant based on available VRAM (or system RAM when CPU-only).
+/// Prefer the best (highest-index) quality that fits the memory budget.
+///
+/// - **Discrete GPU:** the budget is `hw.vram_gib`.
+/// - **CPU-only (no usable VRAM):** the budget is 70 % of system RAM
+///   (the remaining 30 % is reserved for the OS, KV cache and runtime
+///   overhead).  A large-RAM machine can therefore run a 70 B Q4 model
+///   that a 16 GB laptop cannot.
 pub fn recommend_quant(quants: &[Quant], hw: &Hardware) -> Option<usize> {
-    let budget = hw.vram_gib;
+    let budget = if hw.vram_gib > 0.0 {
+        hw.vram_gib
+    } else {
+        // CPU-only: use 70 % of system RAM as the effective weight budget.
+        hw.ram_gib * 0.7
+    };
     if budget <= 0.0 {
-        // CPU-only: pick the first "good" quality that's modest in size.
-        return quants
-            .iter()
-            .rposition(|q| matches!(q.quality, QuantQuality::Good));
+        // No usable memory at all: smallest quant, will swap.
+        return Some(0);
     }
-    // Quants are ordered low -> lossless; pick the highest index that fits.
+    // Quants are ordered low → lossless; pick the highest index that fits.
     for (i, q) in quants.iter().enumerate().rev() {
-        if q.vram_gb <= budget {
+        let size = if hw.vram_gib > 0.0 { q.vram_gb } else { q.disk_gb };
+        if size <= budget {
             return Some(i);
         }
     }
-    // Nothing fits in VRAM: smallest quant, will offload to RAM.
+    // Nothing fits: smallest quant, will offload / swap.
     Some(0)
 }
 
@@ -205,11 +214,18 @@ pub fn estimate(
     // 2) Per-token latency terms
     let b_weight = quant.disk_gb * 1e9; // bytes of weight data streamed
     let b_kv = kv_bytes(model, quant, s_out, hw) * 1e9; // -> bytes
-    let bw = hw.bw_eff_gibs * 1024.0_f64.powi(3); // -> bytes/s
+    // Prefer the user's calibrated bandwidth over the hardware estimate.
+    let bw_gibs = if cfg.calibration_bw_eff > 0.0 {
+        cfg.calibration_bw_eff
+    } else {
+        hw.bw_eff_gibs
+    };
+    let bw = bw_gibs * 1024.0_f64.powi(3); // -> bytes/s
     let tpot = (b_weight / (cfg.eta_weight * bw)) + (b_kv / (cfg.eta_kv * bw));
     let tpot = tpot.max(0.001);
     let total = ttft + tpot * s_out as f64;
-    let tok_s = s_out as f64 / tpot.max(1e-6);
+    // tokens/sec during generation = 1 / TPOT (one token every TPOT seconds).
+    let tok_s = 1.0 / tpot.max(1e-6);
 
     // Classify.
     let status = classify(tok_s, quant.vram_gb, hw);
@@ -308,13 +324,23 @@ mod tests {
         // 10 GiB VRAM: pick the largest quant that fits (index order low->lossless).
         let rec = recommend_quant(&qs, &hw).unwrap();
         assert!(qs[rec].vram_gb <= hw.vram_gib || hw.vram_gib <= 0.0);
-        // Nothing fits on a 0-VRAM machine -> falls back to "good" quality (CPU mode).
+        // CPU-only with 0 RAM: nothing fits -> smallest quant (index 0).
         let cpu_hw = Hardware {
             vram_gib: 0.0,
+            ram_gib: 0.0,
             ..Hardware::default()
         };
         let rec2 = recommend_quant(&qs, &cpu_hw).unwrap();
-        assert!(matches!(qs[rec2].quality, QuantQuality::Good));
+        assert_eq!(rec2, 0);
+        // CPU-only with 32 GiB RAM: 70 % = 22.4 GiB budget;
+        // an 8 B model F16 = 16 GB fits, so we pick F16 (last / highest quality).
+        let cpu_hw2 = Hardware {
+            vram_gib: 0.0,
+            ram_gib: 32.0,
+            ..Hardware::default()
+        };
+        let rec3 = recommend_quant(&qs, &cpu_hw2).unwrap();
+        assert_eq!(qs[rec3].name, "F16");
     }
 
     #[test]
