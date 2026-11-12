@@ -34,6 +34,15 @@ pub fn run() -> anyhow::Result<()> {
     let window = Main::new()?;
     let weak = window.as_weak();
 
+    // Optional start page (debug/automation): OHLLAMA_START_PAGE=0|1|2.
+    if let Ok(p) = std::env::var("OHLLAMA_START_PAGE") {
+        if let Ok(n) = p.parse::<i32>() {
+            if (0..3).contains(&n) {
+                window.set_page(n);
+            }
+        }
+    }
+
     // Default chat model = first registered model, else a placeholder.
     let default_chat_model = crate::registry::list()
         .into_iter()
@@ -161,6 +170,52 @@ pub fn run() -> anyhow::Result<()> {
                     w.set_chat_status(String::new().into());
                 }
             });
+        });
+    });
+
+    // ================= Page switching: crossfade the content region ============
+    // The fork has no declarative `animation`, so the fade is driven from here:
+    // fade `content_opacity` out, flip the page while invisible, fade back in.
+    // `page_state` mirrors `root.page` across threads (Slint closures can't read
+    // component state off the UI thread).
+    use std::sync::atomic::{AtomicI32, Ordering};
+    let w = weak.clone();
+    let page_state = Arc::new(AtomicI32::new(0));
+    window.on_switch_page(move |target| {
+        let w = w.clone();
+        let ps = page_state.clone();
+        thread::spawn(move || {
+            if ps.load(Ordering::SeqCst) == target {
+                return; // no-op when already on the target page
+            }
+
+            for v in [0.85f32, 0.6, 0.35, 0.1, 0.0] {
+                let w2 = w.clone();
+                let _ = slint::invoke_from_event_loop(move || {
+                    if let Some(w) = w2.upgrade() {
+                        w.set_content_opacity(v);
+                    }
+                });
+                thread::sleep(std::time::Duration::from_millis(24));
+            }
+            let w3 = w.clone();
+            let _ = slint::invoke_from_event_loop(move || {
+                let Some(w) = w3.upgrade() else {
+                    return;
+                };
+                w.set_page(target);
+                w.set_content_opacity(0.0);
+            });
+            ps.store(target, Ordering::SeqCst);
+            for v in [0.15f32, 0.4, 0.65, 0.85, 1.0] {
+                let w2 = w.clone();
+                let _ = slint::invoke_from_event_loop(move || {
+                    if let Some(w) = w2.upgrade() {
+                        w.set_content_opacity(v);
+                    }
+                });
+                thread::sleep(std::time::Duration::from_millis(24));
+            }
         });
     });
 

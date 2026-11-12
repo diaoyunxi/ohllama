@@ -43,22 +43,31 @@ impl Model {
 }
 
 /// A HuggingFace model listing (subset of fields the API returns).
+///
+/// The HF Hub `/api/models` endpoints return camelCase keys (`modelId`,
+/// `pipelineTag`); the `alias`/`rename` below accept both forms so the struct
+/// deserializes whether the mirror uppercases the field or not.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct HfModel {
-    #[serde(default)]
+    #[serde(default, rename = "modelId", alias = "model_id")]
     pub model_id: String,
+    /// HuggingFace also returns a bare `id` key (same value as `modelId`). Kept
+    /// as a separate field (not an alias) because a response that carries both
+    /// would otherwise trip serde's `duplicate_field` error and drop the item.
+    #[serde(default, rename = "id")]
+    pub hub_id: String,
     #[serde(default, rename = "likes", alias = "likes_count")]
     pub likes: u64,
     #[serde(default, rename = "downloads", alias = "downloads_count")]
     pub downloads: u64,
     #[serde(default)]
     pub tags: Vec<String>,
-    #[serde(default, rename = "pipeline_tag")]
+    #[serde(default, rename = "pipelineTag", alias = "pipeline_tag")]
     pub pipeline_tag: String,
-    #[serde(default)]
+    #[serde(default, rename = "license", alias = "license_type")]
     pub license: String,
     /// Created / updated timestamp (RFC-ish).
-    #[serde(default)]
+    #[serde(default, rename = "createdAt", alias = "created_at")]
     pub created_at: String,
 }
 

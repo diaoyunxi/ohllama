@@ -27,29 +27,40 @@ fn client() -> Result<reqwest::Client> {
 
 /// Resolve the model to a displayable `Model`.
 pub fn to_model(m: &HfModel) -> Model {
-    let (n_params_b, arch, context, uses, provider) = parse_model_meta(m);
+    let repo_id = effective_model_id(m);
+    let (n_params_b, arch, context, uses, provider) = parse_model_meta(m, &repo_id);
     Model {
-        repo_id: m.model_id.clone(),
-        name: m.model_id.clone(),
-        provider: provider.clone(),
+        repo_id: repo_id.clone(),
+        name: repo_id,
+        provider,
         n_params_b,
         context,
         license: m.license.clone(),
         commercial: m.license.to_lowercase().contains("mit")
             || m.license.to_lowercase().contains("apache"),
-        uses: uses.clone(),
+        uses,
         description: m.pipeline_tag.clone(),
-        arch: arch.clone(),
+        arch,
         release: String::new(),
         superseded: false,
         successor_id: String::new(),
     }
 }
 
-fn parse_model_meta(m: &HfModel) -> (f64, String, u32, Vec<String>, String) {
+/// HF Hub payloads carry the repo slug as both `modelId` and a bare `id`; use
+/// whichever is present.
+fn effective_model_id(m: &HfModel) -> String {
+    if !m.model_id.is_empty() {
+        m.model_id.clone()
+    } else {
+        m.hub_id.clone()
+    }
+}
+
+fn parse_model_meta(m: &HfModel, repo_id: &str) -> (f64, String, u32, Vec<String>, String) {
     // provider = first path segment
-    let provider = m.model_id.split('/').next().unwrap_or("").to_string();
-    let id_lower = m.model_id.to_lowercase();
+    let provider = repo_id.split('/').next().unwrap_or("").to_string();
+    let id_lower = repo_id.to_lowercase();
     // Parameter count guess from the name (e.g. "7B", "13B", "8b-instruct").
     let n_params_b = guess_params(&id_lower);
     // Context: if "128k", "4k" appears in id, parse.
@@ -237,4 +248,49 @@ fn urlencoding(s: &str) -> String {
 /// Re-export CATEGORIES for convenience.
 pub fn categories() -> &'static [&'static str] {
     CATEGORIES
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The HF Hub API returns camelCase keys (`modelId`, `createdAt`). This
+    /// guards the deserialization that feeds the GUI: a real-looking item must
+    /// yield a non-empty repo/provider/param-count. (Regression test for the
+    /// "blank model names" bug where only the snake_case `model_id` was mapped.)
+    #[test]
+    fn deserializes_camelcase_hub_item() {
+        let json = r#"{
+            "_id": "621ffdc1",
+            "id": "sentence-transformers/all-MiniLM-L6-v2",
+            "modelId": "sentence-transformers/all-MiniLM-L6-v2",
+            "likes": 6096,
+            "downloads": 175899798,
+            "pipeline_tag": "text-embedding",
+            "createdAt": "2022-03-02T00:00:00Z"
+        }"#;
+        let v: Value = serde_json::from_str(json).unwrap();
+        let hm: HfModel = serde_json::from_value(v).unwrap();
+        assert_eq!(hm.model_id, "sentence-transformers/all-MiniLM-L6-v2");
+
+        let m = to_model(&hm);
+        assert!(!m.repo_id.is_empty());
+        assert_eq!(m.provider, "sentence-transformers");
+        assert!(!m.name.is_empty());
+    }
+
+    #[test]
+    fn deserializes_with_only_id_key() {
+        // Some responses only carry `id`. The alias must still fill model_id.
+        let json = r#"{"id": "meta-llama/Llama-3-8B-Instruct"}"#;
+        let hm: HfModel = serde_json::from_str::<HfModel>(json).expect("parse");
+        let m = to_model(&hm);
+        assert_eq!(m.repo_id, "meta-llama/Llama-3-8B-Instruct");
+        assert_eq!(m.provider, "meta-llama");
+        assert!(
+            (m.n_params_b - 8.0).abs() < 1e-6,
+            "8B guess, got {}",
+            m.n_params_b
+        );
+    }
 }

@@ -1,15 +1,22 @@
 // ohllama GUI — Claude design language, three pages (Engines / Models / Chat).
 //
-// Slint 1.18 (customized fork) constraints honored:
-//   - unquoted hex colors; `color`/`length` in-props on custom components
-//   - std-widgets Button is NOT recolorable here, so all interactive controls
-//     are built from a custom `ClaudeButton` (Rectangle + Text + TouchArea)
-//   - mutually-exclusive pages/sections overlap at (0,0) and toggle with
-//     `visible` (no StackedLayout / fr in this build)
-//   - rows are wrapped in a VerticalLayout so `for`-generated siblings flow
-//     top-to-bottom instead of piling up.
+// Slint 1.18 (customized fork) rules honored (verified by probe builds + live
+// screenshots):
+//   - no `layout: grow`, no mixed-unit math (`100% - 12px`), no 4-value border-width,
+//     no `animation` element, no Text alignment property.
+//   - In a HorizontalLayout a `width: 100%` child overflows when it also has
+//     fixed-width siblings -> use FIXED widths that sum within the available
+//     space. (height:100% in a HorizontalLayout is safe.)
+//   - In a VerticalLayout a `height: 100%` child overflows when it also has
+//     fixed-height siblings -> use a FIXED height. (width:100% in a
+//     VerticalLayout is safe.)
+//   - All interactive controls are a custom `ClaudeButton` because this fork's
+//     std-widgets Button cannot be recolored.
+//   - Page switching crossfades via `content_opacity` (Rust-tweened), since the
+//     fork has no declarative animation.
 //
 // Palette (Claude): warm cream background, charcoal ink, terracotta accent.
+// Content region is a fixed 641px-tall band (nav is 59px, window is 700px).
 
 import { ScrollView, LineEdit } from "std-widgets.slint";
 
@@ -107,6 +114,8 @@ export component Main inherits Window {
     background: #f5f4ef;
 
     in-out property <int> page: 0;
+    // Crossfade strength of the content region (Rust tweens it on switch).
+    in property <float> content_opacity: 1.0;
 
     in property <[EngineRow]> engines: [];
     in property <string> hw_summary: "";
@@ -139,16 +148,20 @@ export component Main inherits Window {
     callback close_detail();
     callback download_model(string, string);
     callback send_chat(string);
+    // Route page changes through Rust so the content region can crossfade.
+    callback switch_page(int);
 
-    VerticalLayout {
+    // Top-level frame: nav band + a fixed 641px content band (59 + 641 = 700).
+    Rectangle {
         width: 100%;
         height: 100%;
-        spacing: 0px;
 
         // ============================ TOP NAV ============================
         Rectangle {
+            x: 0px;
+            y: 0px;
             width: 100%;
-            height: 58px;
+            height: 59px;
             background: #f5f4ef;
             HorizontalLayout {
                 width: 100%;
@@ -156,7 +169,6 @@ export component Main inherits Window {
                 padding: 13px;
                 spacing: 12px;
 
-                // brand mark
                 HorizontalLayout {
                     spacing: 8px;
                     Rectangle {
@@ -172,13 +184,9 @@ export component Main inherits Window {
                         font-weight: 700;
                     }
                 }
-
-                // spacer pushes the tabs to the right
                 HorizontalLayout {
-                    width: 240px;
+                    width: 260px;
                 }
-
-                // capsule tabs
                 ClaudeButton {
                     label: "Engines";
                     bg: root.page == 0 ? #1f1e1c : #f5f4ef;
@@ -188,7 +196,7 @@ export component Main inherits Window {
                     width: 82px;
                     height: 34px;
                     clicked => {
-                        root.page = 0;
+                        root.switch_page(0);
                     }
                 }
                 ClaudeButton {
@@ -200,7 +208,7 @@ export component Main inherits Window {
                     width: 74px;
                     height: 34px;
                     clicked => {
-                        root.page = 1;
+                        root.switch_page(1);
                     }
                 }
                 ClaudeButton {
@@ -212,21 +220,26 @@ export component Main inherits Window {
                     width: 58px;
                     height: 34px;
                     clicked => {
-                        root.page = 2;
+                        root.switch_page(2);
                     }
                 }
             }
-        }
-        Rectangle {
-            width: 100%;
-            height: 1px;
-            background: #e8e5db;
+            Rectangle {
+                x: 0px;
+                y: 58px;
+                width: 100%;
+                height: 1px;
+                background: #e8e5db;
+            }
         }
 
-        // ====================== CONTENT (pages overlap) ===================
-        // One stretch container; the three pages sit at (0,0) and toggle.
+        // ====================== CONTENT (crossfade) ===================
         Rectangle {
+            x: 0px;
+            y: 59px;
             width: 100%;
+            height: 641px;
+            opacity: root.content_opacity;
 
             // ------------------------------------------------- PAGE 1 ENGINES
             Rectangle {
@@ -265,6 +278,7 @@ export component Main inherits Window {
                     // recommendation card
                     Rectangle {
                         width: 100%;
+                        height: 72px;
                         background: #ffffff;
                         border-color: #f0c4b3;
                         border-width: 1px;
@@ -272,7 +286,7 @@ export component Main inherits Window {
                         clip: true;
                         VerticalLayout {
                             width: 100%;
-                            padding: 16px;
+                            padding: 14px;
                             spacing: 6px;
                             Text {
                                 text: "Recommended for this machine";
@@ -297,7 +311,7 @@ export component Main inherits Window {
                                     max-lines: 1;
                                 }
                                 Text {
-                                    text: "default: " + root.default_engine;
+                                    text: "default: " + (root.default_engine != "" ? root.default_engine : "none");
                                     color: #7a7873;
                                     font-size: 12px;
                                 }
@@ -305,10 +319,10 @@ export component Main inherits Window {
                         }
                     }
 
-                    // engine cards
+                    // engine cards (fixed height -> fits the 641px band)
                     ScrollView {
                         width: 100%;
-                        height: 100%;
+                        height: 430px;
                         VerticalLayout {
                             width: 100%;
                             spacing: 10px;
@@ -326,15 +340,15 @@ export component Main inherits Window {
                                         height: 100%;
                                         padding: 12px;
                                         spacing: 12px;
-                                        // status dot
                                         Rectangle {
                                             width: 10px;
                                             height: 10px;
                                             border-radius: 5px;
                                             background: engine.present ? #4d9f5f : #e8e5db;
                                         }
+                                        // fixed width leaves room for dot + button
                                         VerticalLayout {
-                                            width: 100%;
+                                            width: 770px;
                                             spacing: 3px;
                                             HorizontalLayout {
                                                 spacing: 8px;
@@ -343,7 +357,7 @@ export component Main inherits Window {
                                                     color: #1f1e1c;
                                                     font-size: 15px;
                                                     font-weight: 600;
-                                                    width: 190px;
+                                                    width: 200px;
                                                     max-lines: 1;
                                                 }
                                                 Text {
@@ -366,7 +380,7 @@ export component Main inherits Window {
                                                 text: (engine.path != "" ? engine.path : engine.note);
                                                 color: #a39e90;
                                                 font-size: 12px;
-                                                width: 500px;
+                                                width: 770px;
                                                 max-lines: 1;
                                             }
                                         }
@@ -404,12 +418,12 @@ export component Main inherits Window {
                     padding: 22px;
                     spacing: 14px;
 
-                    // search + category pills
+                    // search + category pills (all fixed widths that fit 936px)
                     HorizontalLayout {
                         width: 100%;
                         spacing: 8px;
                         Rectangle {
-                            width: 250px;
+                            width: 200px;
                             height: 34px;
                             background: #ffffff;
                             border-color: #eae7dd;
@@ -432,7 +446,7 @@ export component Main inherits Window {
                             fg: white;
                             radius: 10px;
                             ty: 7px;
-                            width: 72px;
+                            width: 64px;
                             height: 34px;
                             clicked => {
                                 root.do_search(root.search_query);
@@ -446,7 +460,7 @@ export component Main inherits Window {
                             bw: 1px;
                             radius: 17px;
                             ty: 7px;
-                            width: 52px;
+                            width: 48px;
                             height: 34px;
                             clicked => {
                                 root.category = "hot";
@@ -461,7 +475,7 @@ export component Main inherits Window {
                             bw: 1px;
                             radius: 17px;
                             ty: 7px;
-                            width: 66px;
+                            width: 62px;
                             height: 34px;
                             clicked => {
                                 root.category = "coding";
@@ -476,7 +490,7 @@ export component Main inherits Window {
                             bw: 1px;
                             radius: 17px;
                             ty: 7px;
-                            width: 60px;
+                            width: 58px;
                             height: 34px;
                             clicked => {
                                 root.category = "image";
@@ -491,7 +505,7 @@ export component Main inherits Window {
                             bw: 1px;
                             radius: 17px;
                             ty: 7px;
-                            width: 60px;
+                            width: 58px;
                             height: 34px;
                             clicked => {
                                 root.category = "video";
@@ -506,7 +520,7 @@ export component Main inherits Window {
                             bw: 1px;
                             radius: 17px;
                             ty: 7px;
-                            width: 54px;
+                            width: 50px;
                             height: 34px;
                             clicked => {
                                 root.category = "tiny";
@@ -515,10 +529,10 @@ export component Main inherits Window {
                         }
                     }
 
-                    // list / detail overlap
+                    // list / detail overlap (fixed height so it fits the band)
                     Rectangle {
                         width: 100%;
-                        height: 100%;
+                        height: 543px;
                         // ---- model list ----
                         Rectangle {
                             visible: !root.detail_visible;
@@ -532,24 +546,32 @@ export component Main inherits Window {
                                     spacing: 8px;
                                     Text {
                                         visible: root.models_loading;
-                                        text: "Loading…";
-                                        color: #a39e90;
-                                        font-size: 13px;
+                                        text: "Loading models from HuggingFace…";
+                                        color: #5f5e5b;
+                                        font-size: 14px;
                                         width: 100%;
                                     }
-                                    // header
+                                    Text {
+                                        visible: !root.models_loading && root.models.length == 0;
+                                        text: "No models shown yet — pick a category or search.";
+                                        color: #5f5e5b;
+                                        font-size: 14px;
+                                        width: 100%;
+                                    }
+                                    // header (fixed widths mirror the row columns)
                                     HorizontalLayout {
                                         visible: !root.models_loading;
                                         width: 100%;
-                                        spacing: 6px;
-                                        Text { text: "Model"; color: #a39e90; font-size: 11px; font-weight: 600; width: 170px; }
-                                        Text { text: "Provider"; color: #a39e90; font-size: 11px; font-weight: 600; width: 90px; }
-                                        Text { text: "Quant"; color: #a39e90; font-size: 11px; font-weight: 600; width: 66px; }
-                                        Text { text: "Size"; color: #a39e90; font-size: 11px; font-weight: 600; width: 62px; }
-                                        Text { text: "TTFT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 44px; }
-                                        Text { text: "TPOT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 44px; }
-                                        Text { text: "Total"; color: #a39e90; font-size: 11px; font-weight: 600; width: 48px; }
-                                        Text { text: "Status"; color: #a39e90; font-size: 11px; font-weight: 600; width: 100%; }
+                                        padding: 8px;
+                                        spacing: 4px;
+                                        Text { text: "Model"; color: #a39e90; font-size: 11px; font-weight: 600; width: 260px; }
+                                        Text { text: "Provider"; color: #a39e90; font-size: 11px; font-weight: 600; width: 100px; }
+                                        Text { text: "Quant"; color: #a39e90; font-size: 11px; font-weight: 600; width: 56px; }
+                                        Text { text: "Size"; color: #a39e90; font-size: 11px; font-weight: 600; width: 56px; }
+                                        Text { text: "TTFT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 46px; }
+                                        Text { text: "TPOT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 46px; }
+                                        Text { text: "Total"; color: #a39e90; font-size: 11px; font-weight: 600; width: 50px; }
+                                        Text { text: "Status"; color: #a39e90; font-size: 11px; font-weight: 600; width: 96px; }
                                     }
                                     for m in root.models:
                                         Rectangle {
@@ -572,58 +594,58 @@ export component Main inherits Window {
                                                 width: 100%;
                                                 height: 100%;
                                                 padding: 8px;
-                                                spacing: 6px;
+                                                spacing: 4px;
                                                 Text {
                                                     text: m.name;
                                                     color: #1f1e1c;
                                                     font-size: 13px;
                                                     font-weight: 600;
-                                                    width: 170px;
+                                                    width: 260px;
                                                     max-lines: 1;
                                                 }
                                                 Text {
                                                     text: m.provider;
                                                     color: #7a7873;
                                                     font-size: 12px;
-                                                    width: 90px;
+                                                    width: 100px;
                                                     max-lines: 1;
                                                 }
                                                 Text {
                                                     text: m.rec_quant;
                                                     color: #c2664a;
                                                     font-size: 12px;
-                                                    width: 66px;
+                                                    width: 56px;
                                                 }
                                                 Text {
                                                     text: m.rec_quant_size;
                                                     color: #7a7873;
                                                     font-size: 12px;
-                                                    width: 62px;
+                                                    width: 56px;
                                                 }
                                                 Text {
                                                     text: m.ttft;
                                                     color: #5f5e5b;
                                                     font-size: 12px;
-                                                    width: 44px;
+                                                    width: 46px;
                                                 }
                                                 Text {
                                                     text: m.tpot;
                                                     color: #5f5e5b;
                                                     font-size: 12px;
-                                                    width: 44px;
+                                                    width: 46px;
                                                 }
                                                 Text {
                                                     text: m.total;
                                                     color: #5f5e5b;
                                                     font-size: 12px;
-                                                    width: 48px;
+                                                    width: 50px;
                                                 }
                                                 Text {
                                                     text: "● " + m.status_label;
                                                     color: m.status_color;
                                                     font-size: 11px;
                                                     font-weight: 600;
-                                                    width: 100%;
+                                                    width: 96px;
                                                     max-lines: 1;
                                                 }
                                             }
@@ -665,7 +687,7 @@ export component Main inherits Window {
                                             color: #1f1e1c;
                                             font-size: 20px;
                                             font-weight: 700;
-                                            width: 480px;
+                                            width: 460px;
                                             max-lines: 1;
                                         }
                                         Text {
@@ -682,7 +704,7 @@ export component Main inherits Window {
                                         max-lines: 2;
                                     }
 
-                                    // quantization table (column grid)
+                                    // quantization table (fixed column widths)
                                     Rectangle {
                                         width: 100%;
                                         background: #ffffff;
@@ -703,11 +725,11 @@ export component Main inherits Window {
                                             HorizontalLayout {
                                                 width: 100%;
                                                 spacing: 10px;
-                                                Text { text: "Quant"; color: #a39e90; font-size: 11px; font-weight: 600; width: 74px; }
-                                                Text { text: "Bits"; color: #a39e90; font-size: 11px; font-weight: 600; width: 48px; }
-                                                Text { text: "VRAM"; color: #a39e90; font-size: 11px; font-weight: 600; width: 68px; }
-                                                Text { text: "Quality"; color: #a39e90; font-size: 11px; font-weight: 600; width: 84px; }
-                                                Text { text: "Status"; color: #a39e90; font-size: 11px; font-weight: 600; width: 100%; }
+                                                Text { text: "Quant"; color: #a39e90; font-size: 11px; font-weight: 600; width: 120px; }
+                                                Text { text: "Bits"; color: #a39e90; font-size: 11px; font-weight: 600; width: 80px; }
+                                                Text { text: "VRAM"; color: #a39e90; font-size: 11px; font-weight: 600; width: 100px; }
+                                                Text { text: "Quality"; color: #a39e90; font-size: 11px; font-weight: 600; width: 120px; }
+                                                Text { text: "Status"; color: #a39e90; font-size: 11px; font-weight: 600; width: 180px; }
                                             }
                                             for q in root.quant_table:
                                                 HorizontalLayout {
@@ -718,26 +740,26 @@ export component Main inherits Window {
                                                         color: #1f1e1c;
                                                         font-size: 13px;
                                                         font-weight: 600;
-                                                        width: 74px;
+                                                        width: 120px;
                                                         max-lines: 1;
                                                     }
                                                     Text {
                                                         text: q.bits;
                                                         color: #7a7873;
                                                         font-size: 12px;
-                                                        width: 48px;
+                                                        width: 80px;
                                                     }
                                                     Text {
                                                         text: q.vram;
                                                         color: #7a7873;
                                                         font-size: 12px;
-                                                        width: 68px;
+                                                        width: 100px;
                                                     }
                                                     Text {
                                                         text: q.quality;
                                                         color: #7a7873;
                                                         font-size: 12px;
-                                                        width: 84px;
+                                                        width: 120px;
                                                         max-lines: 1;
                                                     }
                                                     Text {
@@ -745,7 +767,7 @@ export component Main inherits Window {
                                                         color: q.status_color;
                                                         font-size: 11px;
                                                         font-weight: 600;
-                                                        width: 100%;
+                                                        width: 180px;
                                                         max-lines: 1;
                                                     }
                                                 }
@@ -778,14 +800,14 @@ export component Main inherits Window {
                                                         text: f.name;
                                                         color: #3d3c39;
                                                         font-size: 12px;
-                                                        width: 100%;
+                                                        width: 800px;
                                                         max-lines: 1;
                                                     }
                                                     Text {
                                                         text: f.size;
                                                         color: #a39e90;
                                                         font-size: 11px;
-                                                        width: 76px;
+                                                        width: 80px;
                                                     }
                                                 }
                                         }
@@ -843,10 +865,10 @@ export component Main inherits Window {
                         }
                     }
 
-                    // messages
+                    // messages (fixed height leaves room for the composer below)
                     ScrollView {
                         width: 100%;
-                        height: 100%;
+                        height: 470px;
                         VerticalLayout {
                             width: 100%;
                             spacing: 10px;
@@ -879,7 +901,7 @@ export component Main inherits Window {
                         }
                     }
 
-                    // composer
+                    // composer (kept visible: the message scroll no longer takes 100%)
                     Rectangle {
                         width: 100%;
                         height: 48px;
@@ -894,7 +916,7 @@ export component Main inherits Window {
                             padding: 8px;
                             spacing: 8px;
                             LineEdit {
-                                width: 100%;
+                                width: 850px;
                                 height: 100%;
                                 text: root.chat_input;
                                 placeholder-text: "Message ohllama…";
