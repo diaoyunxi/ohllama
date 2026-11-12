@@ -73,8 +73,8 @@ Key settings (all in `config.toml`):
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `hf_endpoint` | `https://hf-mirror.com` | HuggingFace base; switch to `https://huggingface.co` if you don't need a mirror |
-| `mirror_candidates` | hf-mirror, huggingface.co, hf.co | mirrors probed to pick the fastest |
+| `hf_endpoint` | `https://hf-mirror.com` | All HF reads/downloads go through this base (the mirror). Change it to any compatible mirror. |
+| `mirror_candidates` | `https://hf-mirror.com` | Mirrors, fastest-probed for downloads. hf-mirror only by default; add more here if you want fallbacks. |
 | `download_threads` | `32` | parallel ranged-GET threads (32/64) |
 | `default_engine` | *(auto)* | force a specific engine backend |
 | `calibration_bw_eff` | `40.0` | effective memory bandwidth (GiB/s) — **calibrate** |

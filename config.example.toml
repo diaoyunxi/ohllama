@@ -7,9 +7,11 @@ hf_endpoint = "https://hf-mirror.com"
 # Optional bearer token for gated models (leave empty for public models).
 hf_token = ""
 
-# Mirrors tried, in order of preference, when picking the fastest one for a
-# download. The first reachable one wins.
-mirror_candidates = ["https://hf-mirror.com", "https://huggingface.co", "https://hf.co"]
+# All HuggingFace reads/downloads go through hf-mirror.com by default. Add more
+# mirrors here (in order of preference) only if you want fallbacks, e.g.
+#   mirror_candidates = ["https://hf-mirror.com", "https://huggingface.co"]
+# The first reachable one is used; a download picks the fastest of the list.
+mirror_candidates = ["https://hf-mirror.com"]
 
 # Parallel download threads (32/64 as requested).
 download_threads = 32

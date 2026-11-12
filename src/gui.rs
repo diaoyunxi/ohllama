@@ -341,9 +341,12 @@ fn build_model_rows(
             let rec_i = perf::recommend_quant(&quants, hw).unwrap_or(0);
             let quant = &quants[rec_i];
             let est = perf::estimate(m, quant, s_in, s_out, hw, cfg);
+            // The UI columns are fixed-width; truncate the two variable text
+            // fields so a long repo name can never push the later columns
+            // (incl. the color-coded Status) off the right edge of the window.
             ModelRow {
-                name: m.display_name().into(),
-                provider: m.provider.clone().into(),
+                name: ellipsize(&m.display_name(), 36).into(),
+                provider: ellipsize(&m.provider, 13).into(),
                 rec_quant: quant.name.clone().into(),
                 rec_quant_size: format!("{:.1} GB", quant.disk_gb).into(),
                 ttft: format_s(est.ttft_s).into(),
@@ -355,6 +358,18 @@ fn build_model_rows(
             }
         })
         .collect()
+}
+
+/// Truncate a string to `max` characters, adding `…` when it is cut.
+fn ellipsize(s: &str, max: usize) -> String {
+    let chars: Vec<char> = s.chars().collect();
+    if chars.len() <= max {
+        s.to_string()
+    } else {
+        let mut t: String = chars[..max - 1].iter().collect();
+        t.push('…');
+        t
+    }
 }
 
 fn format_s(v: f64) -> String {
@@ -495,4 +510,26 @@ fn block_on<T>(fut: impl Future<Output = T>) -> T {
         .build()
         .expect("failed to build tokio runtime");
     rt.block_on(fut)
+}
+
+#[cfg(test)]
+mod gui_tests {
+    use super::ellipsize;
+
+    #[test]
+    fn ellipsize_short_keeps_full() {
+        assert_eq!(ellipsize("abc", 10), "abc");
+    }
+
+    #[test]
+    fn ellipsize_exact_no_marker() {
+        assert_eq!(ellipsize("abcdef", 6), "abcdef");
+    }
+
+    #[test]
+    fn ellipsize_truncates_with_marker() {
+        let s = ellipsize("sentence-transformers/all-MiniLM-L6-v2", 12);
+        assert!(s.chars().count() <= 12, "len was {}", s.chars().count());
+        assert!(s.ends_with('…'), "expected ellipsis, got {s}");
+    }
 }

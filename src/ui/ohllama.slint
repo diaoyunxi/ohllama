@@ -564,14 +564,14 @@ export component Main inherits Window {
                                         width: 100%;
                                         padding: 8px;
                                         spacing: 4px;
-                                        Text { text: "Model"; color: #a39e90; font-size: 11px; font-weight: 600; width: 260px; }
-                                        Text { text: "Provider"; color: #a39e90; font-size: 11px; font-weight: 600; width: 100px; }
-                                        Text { text: "Quant"; color: #a39e90; font-size: 11px; font-weight: 600; width: 56px; }
-                                        Text { text: "Size"; color: #a39e90; font-size: 11px; font-weight: 600; width: 56px; }
-                                        Text { text: "TTFT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 46px; }
-                                        Text { text: "TPOT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 46px; }
-                                        Text { text: "Total"; color: #a39e90; font-size: 11px; font-weight: 600; width: 50px; }
-                                        Text { text: "Status"; color: #a39e90; font-size: 11px; font-weight: 600; width: 96px; }
+                                        Rectangle { width: 250px; clip: true; Text { text: "Model"; color: #a39e90; font-size: 11px; font-weight: 600; width: 244px; } }
+                                        Rectangle { width: 130px; clip: true; Text { text: "Provider"; color: #a39e90; font-size: 11px; font-weight: 600; width: 124px; } }
+                                        Rectangle { width: 70px; clip: true; Text { text: "Quant"; color: #a39e90; font-size: 11px; font-weight: 600; width: 64px; } }
+                                        Rectangle { width: 70px; clip: true; Text { text: "Size"; color: #a39e90; font-size: 11px; font-weight: 600; width: 64px; } }
+                                        Rectangle { width: 55px; clip: true; Text { text: "TTFT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 49px; } }
+                                        Rectangle { width: 55px; clip: true; Text { text: "TPOT"; color: #a39e90; font-size: 11px; font-weight: 600; width: 49px; } }
+                                        Rectangle { width: 60px; clip: true; Text { text: "Total"; color: #a39e90; font-size: 11px; font-weight: 600; width: 54px; } }
+                                        Rectangle { width: 200px; Text { text: "Status"; color: #a39e90; font-size: 11px; font-weight: 600; width: 100%; } }
                                     }
                                     for m in root.models:
                                         Rectangle {
@@ -595,58 +595,119 @@ export component Main inherits Window {
                                                 height: 100%;
                                                 padding: 8px;
                                                 spacing: 4px;
-                                                Text {
-                                                    text: m.name;
-                                                    color: #1f1e1c;
-                                                    font-size: 13px;
-                                                    font-weight: 600;
-                                                    width: 260px;
-                                                    max-lines: 1;
+                                                Rectangle {
+                                                    width: 250px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: m.name;
+                                                        color: #1f1e1c;
+                                                        font-size: 13px;
+                                                        font-weight: 600;
+                                                        width: 244px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
-                                                Text {
-                                                    text: m.provider;
-                                                    color: #7a7873;
-                                                    font-size: 12px;
-                                                    width: 100px;
-                                                    max-lines: 1;
+                                                Rectangle {
+                                                    width: 130px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: m.provider;
+                                                        color: #7a7873;
+                                                        font-size: 12px;
+                                                        width: 124px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
-                                                Text {
-                                                    text: m.rec_quant;
-                                                    color: #c2664a;
-                                                    font-size: 12px;
-                                                    width: 56px;
+                                                Rectangle {
+                                                    width: 70px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: m.rec_quant;
+                                                        color: #c2664a;
+                                                        font-size: 12px;
+                                                        width: 64px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
-                                                Text {
-                                                    text: m.rec_quant_size;
-                                                    color: #7a7873;
-                                                    font-size: 12px;
-                                                    width: 56px;
+                                                Rectangle {
+                                                    width: 70px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: m.rec_quant_size;
+                                                        color: #7a7873;
+                                                        font-size: 12px;
+                                                        width: 64px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
-                                                Text {
-                                                    text: m.ttft;
-                                                    color: #5f5e5b;
-                                                    font-size: 12px;
-                                                    width: 46px;
+                                                Rectangle {
+                                                    width: 55px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: m.ttft;
+                                                        color: #5f5e5b;
+                                                        font-size: 12px;
+                                                        width: 49px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
-                                                Text {
-                                                    text: m.tpot;
-                                                    color: #5f5e5b;
-                                                    font-size: 12px;
-                                                    width: 46px;
+                                                Rectangle {
+                                                    width: 55px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: m.tpot;
+                                                        color: #5f5e5b;
+                                                        font-size: 12px;
+                                                        width: 49px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
-                                                Text {
-                                                    text: m.total;
-                                                    color: #5f5e5b;
-                                                    font-size: 12px;
-                                                    width: 50px;
+                                                Rectangle {
+                                                    width: 60px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: m.total;
+                                                        color: #5f5e5b;
+                                                        font-size: 12px;
+                                                        width: 54px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
-                                                Text {
-                                                    text: "● " + m.status_label;
-                                                    color: m.status_color;
-                                                    font-size: 11px;
-                                                    font-weight: 600;
-                                                    width: 96px;
-                                                    max-lines: 1;
+                                                Rectangle {
+                                                    width: 200px;
+                                                    height: 100%;
+                                                    clip: true;
+                                                    Text {
+                                                        x: 0px;
+                                                        y: 8px;
+                                                        text: "● " + m.status_label;
+                                                        color: m.status_color;
+                                                        font-size: 11px;
+                                                        font-weight: 600;
+                                                        width: 194px;
+                                                        max-lines: 1;
+                                                    }
                                                 }
                                             }
                                         }

@@ -33,15 +33,13 @@ pub mod gui;
 
 use anyhow::Result;
 
-/// Default HuggingFace endpoint. The user can point `mirror_url` at
-/// `https://hf-mirror.com` (or any compatible mirror) to swap the base host.
+/// Default HuggingFace endpoint. All HF reads and downloads go through this
+/// base by default; the user can point it at any compatible mirror.
 pub const DEFAULT_HF_ENDPOINT: &str = "https://hf-mirror.com";
-/// Secondary mirror list used for the "fastest mirror" picker on download.
-pub const MIRRORS: &[&str] = &[
-    "https://hf-mirror.com",
-    "https://huggingface.co",
-    "https://hf.co",
-];
+/// Default mirror list. Kept to hf-mirror.com only, so every HF request goes
+/// through the mirror by default. Add `https://huggingface.co`, `hf.co`, or any
+/// other mirror via `mirror_candidates` in the config if you want fallbacks.
+pub const MIRRORS: &[&str] = &["https://hf-mirror.com"];
 /// Number of parallel download threads (user requested 32/64).
 pub const DOWNLOAD_THREADS: usize = 32;
 
