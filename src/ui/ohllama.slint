@@ -1,7 +1,13 @@
 // ohllama GUI — Claude-style, three pages (Engines / Models / Chat).
+//
 // Slint 1.18 (customized build): unquoted hex colors, `color` type for dynamic
-// colors, visible-based page switching, std-widgets Button/ScrollView/LineEdit.
-// Uses only proven-safe constructs for this build.
+// colors, std-widgets Button/ScrollView/LineEdit. No StackedLayout/Spacer/fr in
+// this build, so mutually-exclusive sections are shown with `visible` + a
+// conditional `height` (an element with visible:false still reserves layout
+// space, so we must also zero its height to avoid the three pages / the list vs
+// detail stacking). Every scrollable list wraps its rows in a VerticalLayout so
+// the `for`-generated siblings flow top-to-bottom instead of piling up at the
+// top-left of the ScrollView.
 
 import { ScrollView, Button, LineEdit } from "std-widgets.slint";
 
@@ -89,7 +95,9 @@ export component Main inherits Window {
     VerticalLayout {
         width: 100%;
         height: 100%;
+        spacing: 0px;
 
+        // ---- top nav bar ----
         Rectangle {
             width: 100%;
             height: 44px;
@@ -131,7 +139,7 @@ export component Main inherits Window {
         VerticalLayout {
             visible: root.page == 0;
             width: 100%;
-            height: 100%;
+            height: root.page == 0 ? 100% : 0%;
             padding: 14px;
             spacing: 8px;
 
@@ -140,6 +148,7 @@ export component Main inherits Window {
                 color: #3d3c39;
                 font-size: 18px;
                 font-weight: 600;
+                width: 100%;
             }
             Text {
                 text: "Hardware: " + root.hw_summary;
@@ -170,6 +179,7 @@ export component Main inherits Window {
                         font-size: 15px;
                         font-weight: 600;
                         width: 300px;
+                        max-lines: 1;
                     }
                     Text {
                         text: "Default: " + root.default_engine;
@@ -182,79 +192,83 @@ export component Main inherits Window {
             ScrollView {
                 width: 100%;
                 height: 100%;
-                for engine in root.engines:
-                    Rectangle {
-                        width: 100%;
-                        height: 66px;
-                        background: white;
-                        border-color: #e5e1d8;
-                        border-width: 1px;
-                        border-radius: 10px;
-                        clip: true;
-                        HorizontalLayout {
+                VerticalLayout {
+                    width: 100%;
+                    spacing: 8px;
+                    for engine in root.engines:
+                        Rectangle {
                             width: 100%;
-                            padding: 8px;
-                            spacing: 10px;
-                            Rectangle {
-                                width: 4px;
-                                height: 40px;
-                                border-radius: 2px;
-                                background: engine.present ? #4ade80 : #e5e1d8;
-                            }
-                            VerticalLayout {
+                            height: 66px;
+                            background: white;
+                            border-color: #e5e1d8;
+                            border-width: 1px;
+                            border-radius: 10px;
+                            clip: true;
+                            HorizontalLayout {
                                 width: 100%;
-                                height: 100%;
-                                spacing: 3px;
-                                Text {
-                                    text: engine.name;
-                                    color: #3d3c39;
-                                    font-size: 14px;
-                                    font-weight: 600;
-                                    width: 280px;
-                                    max-lines: 1;
+                                padding: 8px;
+                                spacing: 10px;
+                                Rectangle {
+                                    width: 4px;
+                                    height: 40px;
+                                    border-radius: 2px;
+                                    background: engine.present ? #4ade80 : #e5e1d8;
                                 }
-                                Text {
-                                    text: (engine.precompiled ? "precompiled · " : "") + engine.note
-                                         + (engine.path != "" ? "  ·  " + engine.path : "");
-                                    color: #8c8a84;
-                                    font-size: 11px;
-                                    width: 500px;
-                                    max-lines: 1;
-                                }
-                                HorizontalLayout {
-                                    spacing: 6px;
+                                VerticalLayout {
+                                    width: 100%;
+                                    height: 100%;
+                                    spacing: 3px;
                                     Text {
-                                        text: engine.is_default ? "★ default" : "";
-                                        color: #c08700;
-                                        font-size: 11px;
+                                        text: engine.name;
+                                        color: #3d3c39;
+                                        font-size: 14px;
+                                        font-weight: 600;
+                                        width: 280px;
+                                        max-lines: 1;
                                     }
                                     Text {
-                                        text: engine.recommended ? "● recommended for this hardware" : "";
-                                        color: #4ade80;
+                                        text: (engine.precompiled ? "precompiled · " : "") + engine.note
+                                             + (engine.path != "" ? "  ·  " + engine.path : "");
+                                        color: #8c8a84;
                                         font-size: 11px;
+                                        width: 500px;
+                                        max-lines: 1;
                                     }
-                                    Text {
-                                        text: engine.present ? "installed" : "missing";
-                                        color: engine.present ? #4ade80 : #f97316;
-                                        font-size: 11px;
+                                    HorizontalLayout {
+                                        spacing: 8px;
+                                        Text {
+                                            text: engine.is_default ? "★ default" : "";
+                                            color: #c08700;
+                                            font-size: 11px;
+                                        }
+                                        Text {
+                                            text: engine.recommended ? "● recommended for this hardware" : "";
+                                            color: #4ade80;
+                                            font-size: 11px;
+                                        }
+                                        Text {
+                                            text: engine.present ? "installed" : "missing";
+                                            color: engine.present ? #4ade80 : #f97316;
+                                            font-size: 11px;
+                                        }
                                     }
                                 }
-                            }
-                            Button {
-                                text: engine.present ? "Set default" : "Download";
-                                primary: true;
-                                width: 108px;
-                                height: 26px;
-                                clicked => {
-                                    if (engine.present) {
-                                        root.change_engine("default", engine.name);
-                                    } else {
-                                        root.change_engine("download", engine.name);
+                                Button {
+                                    text: engine.present ? "Set default" : "Download";
+                                    primary: true;
+                                    width: 108px;
+                                    height: 26px;
+                                    clicked => {
+                                        if (engine.present) {
+                                            root.change_engine("default", engine.name);
+                                        } else {
+                                            root.change_engine("download", engine.name);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
+                }
             }
         }
 
@@ -262,7 +276,7 @@ export component Main inherits Window {
         VerticalLayout {
             visible: root.page == 1;
             width: 100%;
-            height: 100%;
+            height: root.page == 1 ? 100% : 0%;
             padding: 14px;
             spacing: 8px;
 
@@ -272,184 +286,259 @@ export component Main inherits Window {
                 LineEdit {
                     text: root.search_query;
                     placeholder-text: "Search HuggingFace";
-                    width: 180px;
-                    edited => {
-                        root.search_query = self.text;
-                        root.do_search(self.text);
-                    }
+                    width: 200px;
+                    edited => { root.search_query = self.text; }
                 }
-                Button { text: "Hot"; primary: root.category == "hot"; width: 52px; height: 24px; clicked => { root.category = "hot"; root.change_category("hot"); } }
-                Button { text: "Coding"; primary: root.category == "coding"; width: 62px; height: 24px; clicked => { root.category = "coding"; root.change_category("coding"); } }
-                Button { text: "Image"; primary: root.category == "image"; width: 56px; height: 24px; clicked => { root.category = "image"; root.change_category("image"); } }
-                Button { text: "Video"; primary: root.category == "video"; width: 56px; height: 24px; clicked => { root.category = "video"; root.change_category("video"); } }
-                Button { text: "Tiny"; primary: root.category == "tiny"; width: 48px; height: 24px; clicked => { root.category = "tiny"; root.change_category("tiny"); } }
+                Button {
+                    text: "Search";
+                    width: 64px;
+                    height: 24px;
+                    clicked => { root.do_search(root.search_query); }
+                }
+                Button {
+                    text: "Hot";
+                    primary: root.category == "hot";
+                    width: 52px;
+                    height: 24px;
+                    clicked => { root.category = "hot"; root.change_category("hot"); }
+                }
+                Button {
+                    text: "Coding";
+                    primary: root.category == "coding";
+                    width: 62px;
+                    height: 24px;
+                    clicked => { root.category = "coding"; root.change_category("coding"); }
+                }
+                Button {
+                    text: "Image";
+                    primary: root.category == "image";
+                    width: 56px;
+                    height: 24px;
+                    clicked => { root.category = "image"; root.change_category("image"); }
+                }
+                Button {
+                    text: "Video";
+                    primary: root.category == "video";
+                    width: 56px;
+                    height: 24px;
+                    clicked => { root.category = "video"; root.change_category("video"); }
+                }
+                Button {
+                    text: "Tiny";
+                    primary: root.category == "tiny";
+                    width: 48px;
+                    height: 24px;
+                    clicked => { root.category = "tiny"; root.change_category("tiny"); }
+                }
             }
 
+            // -- model list (hidden while a model detail is open) --
             ScrollView {
                 visible: !root.detail_visible;
                 width: 100%;
-                height: 100%;
-                Text {
-                    visible: root.models_loading;
-                    text: "Loading...";
-                    color: #7a7873;
-                    font-size: 12px;
-                }
-                HorizontalLayout {
-                    visible: !root.models_loading;
+                height: !root.detail_visible ? 100% : 0%;
+                VerticalLayout {
                     width: 100%;
-                    spacing: 4px;
-                    Text { text: "Model"; color: #b5b3ad; font-size: 11px; width: 170px; }
-                    Text { text: "Provider"; color: #b5b3ad; font-size: 11px; width: 90px; }
-                    Text { text: "Rec. quant"; color: #b5b3ad; font-size: 11px; width: 74px; }
-                    Text { text: "Rec. size"; color: #b5b3ad; font-size: 11px; width: 66px; }
-                    Text { text: "TTFT"; color: #b5b3ad; font-size: 11px; width: 54px; }
-                    Text { text: "TPOT"; color: #b5b3ad; font-size: 11px; width: 54px; }
-                    Text { text: "Total"; color: #b5b3ad; font-size: 11px; width: 54px; }
-                    Text { text: "Status"; color: #b5b3ad; font-size: 11px; width: 120px; }
+                    spacing: 6px;
+                    Text {
+                        visible: root.models_loading;
+                        text: "Loading...";
+                        color: #7a7873;
+                        font-size: 12px;
+                        width: 100%;
+                    }
+                    HorizontalLayout {
+                        visible: !root.models_loading;
+                        width: 100%;
+                        spacing: 4px;
+                        Text { text: "Model"; color: #b5b3ad; font-size: 11px; width: 170px; }
+                        Text { text: "Provider"; color: #b5b3ad; font-size: 11px; width: 90px; }
+                        Text { text: "Rec. quant"; color: #b5b3ad; font-size: 11px; width: 74px; }
+                        Text { text: "Rec. size"; color: #b5b3ad; font-size: 11px; width: 66px; }
+                        Text { text: "TTFT"; color: #b5b3ad; font-size: 11px; width: 48px; }
+                        Text { text: "TPOT"; color: #b5b3ad; font-size: 11px; width: 48px; }
+                        Text { text: "Total"; color: #b5b3ad; font-size: 11px; width: 52px; }
+                        Text { text: "Status"; color: #b5b3ad; font-size: 11px; width: 100%; }
+                    }
+                    for m in root.models:
+                        Rectangle {
+                            visible: !root.models_loading;
+                            width: 100%;
+                            height: 46px;
+                            background: white;
+                            border-color: #edeae3;
+                            border-width: 1px;
+                            border-radius: 8px;
+                            clip: true;
+                            TouchArea {
+                                width: 100%;
+                                height: 100%;
+                                clicked => { root.open_model(m.repo_id); }
+                            }
+                            HorizontalLayout {
+                                width: 100%;
+                                padding: 6px;
+                                spacing: 4px;
+                                Text {
+                                    text: m.name;
+                                    color: #3d3c39;
+                                    font-size: 13px;
+                                    font-weight: 600;
+                                    width: 170px;
+                                    max-lines: 1;
+                                }
+                                Text {
+                                    text: m.provider;
+                                    color: #8c8a84;
+                                    font-size: 12px;
+                                    width: 90px;
+                                    max-lines: 1;
+                                }
+                                Text { text: m.rec_quant; color: #c08700; font-size: 12px; width: 74px; }
+                                Text { text: m.rec_quant_size; color: #8c8a84; font-size: 12px; width: 66px; }
+                                Text { text: m.ttft; color: #5f5e5b; font-size: 12px; width: 48px; }
+                                Text { text: m.tpot; color: #5f5e5b; font-size: 12px; width: 48px; }
+                                Text { text: m.total; color: #5f5e5b; font-size: 12px; width: 52px; }
+                                Text {
+                                    text: m.status_label;
+                                    color: m.status_color;
+                                    font-size: 11px;
+                                    font-weight: 600;
+                                    width: 100%;
+                                    max-lines: 1;
+                                }
+                            }
+                        }
                 }
-                for m in root.models:
+            }
+
+            // -- model detail (shown instead of the list) --
+            ScrollView {
+                visible: root.detail_visible;
+                height: root.detail_visible ? 100% : 0%;
+                width: 100%;
+                VerticalLayout {
+                    width: 100%;
+                    spacing: 10px;
+                    HorizontalLayout {
+                        width: 100%;
+                        spacing: 8px;
+                        Button {
+                            text: "< Back";
+                            width: 62px;
+                            height: 24px;
+                            clicked => { root.close_detail(); }
+                        }
+                        Text {
+                            text: root.detail_repo;
+                            color: #3d3c39;
+                            font-size: 18px;
+                            font-weight: 600;
+                            width: 560px;
+                            max-lines: 1;
+                        }
+                        Text {
+                            text: root.detail_provider;
+                            color: #8c8a84;
+                            font-size: 12px;
+                        }
+                    }
+                    Text {
+                        text: root.detail_desc;
+                        color: #5f5e5b;
+                        font-size: 13px;
+                        width: 100%;
+                        max-lines: 2;
+                    }
+
+                    // quantization table (real column grid, header + rows)
                     Rectangle {
                         width: 100%;
-                        height: 46px;
                         background: white;
-                        border-color: #edeae3;
+                        border-color: #e5e1d8;
                         border-width: 1px;
-                        border-radius: 8px;
+                        border-radius: 10px;
                         clip: true;
-                        TouchArea {
+                        VerticalLayout {
                             width: 100%;
-                            height: 100%;
-                            clicked => { root.open_model(m.repo_id); }
-                        }
-                        HorizontalLayout {
-                            width: 100%;
-                            padding: 6px;
-                            spacing: 4px;
+                            spacing: 6px;
+                            padding: 10px;
                             Text {
-                                text: m.name;
+                                text: "Quantizations   (recommended: " + root.detail_rec_quant + ")";
                                 color: #3d3c39;
                                 font-size: 13px;
                                 font-weight: 600;
-                                width: 170px;
-                                max-lines: 1;
                             }
-                            Text { text: m.provider; color: #8c8a84; font-size: 12px; width: 90px; max-lines: 1; }
-                            Text { text: m.rec_quant; color: #c08700; font-size: 12px; width: 74px; }
-                            Text { text: m.rec_quant_size; color: #8c8a84; font-size: 12px; width: 66px; }
-                            Text { text: m.ttft; color: #5f5e5b; font-size: 12px; width: 54px; }
-                            Text { text: m.tpot; color: #5f5e5b; font-size: 12px; width: 54px; }
-                            Text { text: m.total; color: #5f5e5b; font-size: 12px; width: 54px; }
-                            Text {
-                                text: m.status_label;
-                                color: m.status_color;
-                                font-size: 11px;
-                                font-weight: 600;
-                                width: 120px;
-                                max-lines: 1;
-                            }
-                        }
-                    }
-            }
-
-            ScrollView {
-                visible: root.detail_visible;
-                width: 100%;
-                height: 100%;
-                HorizontalLayout {
-                    width: 100%;
-                    spacing: 8px;
-                    Button {
-                        text: "< Back";
-                        width: 62px;
-                        height: 24px;
-                        clicked => { root.close_detail(); }
-                    }
-                    Text {
-                        text: root.detail_repo;
-                        color: #3d3c39;
-                        font-size: 18px;
-                        font-weight: 600;
-                        width: 560px;
-                        max-lines: 1;
-                    }
-                    Text {
-                        text: root.detail_provider;
-                        color: #8c8a84;
-                        font-size: 12px;
-                    }
-                }
-                Text {
-                    text: root.detail_desc;
-                    color: #5f5e5b;
-                    font-size: 13px;
-                    width: 100%;
-                    max-lines: 2;
-                }
-
-                Rectangle {
-                    width: 100%;
-                    background: white;
-                    border-color: #e5e1d8;
-                    border-width: 1px;
-                    border-radius: 10px;
-                    clip: true;
-                    VerticalLayout {
-                        width: 100%;
-                        spacing: 5px;
-                        padding: 10px;
-                        Text {
-                            text: "Quantizations   (recommended: " + root.detail_rec_quant + ")";
-                            color: #3d3c39;
-                            font-size: 13px;
-                            font-weight: 600;
-                        }
-                        for q in root.quant_table:
-                            Text {
-                                text: q.quant + "   ·   " + q.bits + " b   ·   " + q.vram
-                                     + "   ·   " + q.quality + "   ·   " + q.status;
-                                color: q.status_color;
-                                font-size: 12px;
+                            HorizontalLayout {
                                 width: 100%;
-                                max-lines: 1;
+                                spacing: 8px;
+                                Text { text: "Quant"; color: #b5b3ad; font-size: 11px; width: 70px; }
+                                Text { text: "Bits"; color: #b5b3ad; font-size: 11px; width: 50px; }
+                                Text { text: "VRAM"; color: #b5b3ad; font-size: 11px; width: 70px; }
+                                Text { text: "Quality"; color: #b5b3ad; font-size: 11px; width: 80px; }
+                                Text { text: "Status"; color: #b5b3ad; font-size: 11px; width: 100%; }
                             }
-                    }
-                }
-
-                Rectangle {
-                    width: 100%;
-                    background: white;
-                    border-color: #e5e1d8;
-                    border-width: 1px;
-                    border-radius: 10px;
-                    clip: true;
-                    VerticalLayout {
-                        width: 100%;
-                        spacing: 5px;
-                        padding: 10px;
-                        Text {
-                            text: "Files & versions";
-                            color: #3d3c39;
-                            font-size: 13px;
-                            font-weight: 600;
+                            for q in root.quant_table:
+                                HorizontalLayout {
+                                    width: 100%;
+                                    spacing: 8px;
+                                    Text { text: q.quant; color: #3d3c39; font-size: 12px; width: 70px; max-lines: 1; }
+                                    Text { text: q.bits; color: #8c8a84; font-size: 12px; width: 50px; }
+                                    Text { text: q.vram; color: #8c8a84; font-size: 12px; width: 70px; }
+                                    Text { text: q.quality; color: #8c8a84; font-size: 12px; width: 80px; max-lines: 1; }
+                                    Text {
+                                        text: q.status;
+                                        color: q.status_color;
+                                        font-size: 11px;
+                                        font-weight: 600;
+                                        width: 100%;
+                                        max-lines: 1;
+                                    }
+                                }
                         }
-                        for f in root.file_list:
+                    }
+
+                    // files & versions (name stretches, size right-aligned)
+                    Rectangle {
+                        width: 100%;
+                        background: white;
+                        border-color: #e5e1d8;
+                        border-width: 1px;
+                        border-radius: 10px;
+                        clip: true;
+                        VerticalLayout {
+                            width: 100%;
+                            spacing: 6px;
+                            padding: 10px;
                             Text {
-                                text: f.name + "  -  " + f.size;
+                                text: "Files & versions";
                                 color: #3d3c39;
-                                font-size: 12px;
-                                width: 100%;
-                                max-lines: 1;
+                                font-size: 13px;
+                                font-weight: 600;
                             }
+                            for f in root.file_list:
+                                HorizontalLayout {
+                                    width: 100%;
+                                    spacing: 8px;
+                                    Text {
+                                        text: f.name;
+                                        color: #3d3c39;
+                                        font-size: 12px;
+                                        width: 100%;
+                                        max-lines: 1;
+                                    }
+                                    Text { text: f.size; color: #8c8a84; font-size: 11px; width: 80px; }
+                                }
+                        }
                     }
-                }
 
-                Button {
-                    text: "Download (" + root.detail_rec_quant + ")  ·  fastest mirror, 32/64 threads";
-                    primary: true;
-                    width: 420px;
-                    height: 32px;
-                    clicked => { root.download_model(root.detail_repo, root.detail_rec_quant); }
+                    Button {
+                        text: "Download (" + root.detail_rec_quant + ")  ·  fastest mirror, 32/64 threads";
+                        primary: true;
+                        width: 100%;
+                        height: 32px;
+                        clicked => { root.download_model(root.detail_repo, root.detail_rec_quant); }
+                    }
                 }
             }
         }
@@ -457,8 +546,8 @@ export component Main inherits Window {
         // =============== PAGE 3: CHAT ===============
         VerticalLayout {
             visible: root.page == 2;
+            height: root.page == 2 ? 100% : 0%;
             width: 100%;
-            height: 100%;
             padding: 14px;
             spacing: 8px;
 
@@ -480,21 +569,27 @@ export component Main inherits Window {
             ScrollView {
                 width: 100%;
                 height: 100%;
-                for msg in root.chat:
-                    Rectangle {
-                        width: 100%;
-                        background: msg.role == "user" ? #3d3c39 : #f0ede6;
-                        border-radius: 8px;
-                        clip: true;
-                        Text {
-                            x: 8px;
-                            y: 6px;
-                            text: msg.content;
-                            color: msg.role == "user" ? white : #3d3c39;
-                            font-size: 13px;
-                            width: 96%;
+                VerticalLayout {
+                    width: 100%;
+                    spacing: 8px;
+                    for msg in root.chat:
+                        Rectangle {
+                            width: 100%;
+                            background: msg.role == "user" ? #3d3c39 : #f0ede6;
+                            border-radius: 8px;
+                            clip: true;
+                            VerticalLayout {
+                                width: 100%;
+                                padding: 10px;
+                                Text {
+                                    width: 100%;
+                                    text: msg.content;
+                                    color: msg.role == "user" ? white : #3d3c39;
+                                    font-size: 13px;
+                                }
+                            }
                         }
-                    }
+                }
             }
 
             HorizontalLayout {
@@ -503,7 +598,8 @@ export component Main inherits Window {
                 LineEdit {
                     text: root.chat_input;
                     placeholder-text: "Send a message";
-                    width: 780px;
+                    width: 100%;
+                    edited => { root.chat_input = self.text; }
                 }
                 Button {
                     text: "Send";

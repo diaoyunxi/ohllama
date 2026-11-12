@@ -6,6 +6,10 @@
 //! - Cross-thread work (network) runs on std threads and marshals UI updates back
 //!   with `slint::invoke_from_event_loop` using a `slint::Weak<Main>` handle.
 //! - `Model<T>` properties are set with `slint::ModelRc::new(slint::VecModel::from(vec))`.
+//!
+//! A `model_cache` (shared `RwLock<Vec<Model>>`) is populated whenever a category
+//! or search result arrives, so the model *detail* page can read the real
+//! parameter count / context / description instead of a hardcoded placeholder.
 
 slint::include_modules!();
 
@@ -38,12 +42,15 @@ pub fn run() -> anyhow::Result<()> {
         .unwrap_or_else(|| "(no model registered)".into());
     let chat_model_name: Arc<RwLock<String>> = Arc::new(RwLock::new(default_chat_model.clone()));
 
+    // Real models fetched so far, keyed by repo_id, for the detail page.
+    let model_cache: Arc<RwLock<Vec<model::Model>>> = Arc::new(RwLock::new(Vec::new()));
+
     // ---- Initial data (engines) — synchronous on the UI thread. ----
     refresh_engines(&window);
     window.set_chat_model(default_chat_model.into());
 
     // ---- Initial data (hot models) — async. ----
-    fetch_category(weak.clone(), "hot");
+    fetch_category(weak.clone(), "hot", model_cache.clone());
 
     // ================= Callbacks: page 1 (Engines) =================
     let w = weak.clone();
@@ -67,26 +74,30 @@ pub fn run() -> anyhow::Result<()> {
 
     // ================= Callbacks: page 2 (Models) =================
     let w = weak.clone();
+    let mc = model_cache.clone();
     window.on_change_category(move |cat| {
         let cat = cat.to_string();
         let w = w.clone();
-        fetch_category(w, &cat);
+        let mc = mc.clone();
+        fetch_category(w, &cat, mc);
     });
 
     let w = weak.clone();
+    let mc = model_cache.clone();
     window.on_do_search(move |q| {
         let q = q.to_string();
         let w = w.clone();
-        do_search(w, &q);
+        let mc = mc.clone();
+        do_search(w, &q, mc);
     });
 
     let w = weak.clone();
-    let m_name = chat_model_name.clone();
+    let mc = model_cache.clone();
     window.on_open_model(move |repo| {
         let repo = repo.to_string();
         let w = w.clone();
-        let m = m_name.clone();
-        open_detail(w, &repo, &m);
+        let mc = mc.clone();
+        open_detail(w, &repo, mc);
     });
 
     let w = weak.clone();
@@ -201,8 +212,8 @@ fn download_engine(name: &str) {
     }
 }
 
-/// Fetch a category and update the model list (async on a worker thread).
-fn fetch_category(weak: slint::Weak<Main>, cat: &str) {
+/// Fetch a category, cache the models, and update the model list (async).
+fn fetch_category(weak: slint::Weak<Main>, cat: &str, cache: Arc<RwLock<Vec<model::Model>>>) {
     let cat = cat.to_string();
     thread::spawn(move || {
         let w1 = weak.clone();
@@ -211,12 +222,18 @@ fn fetch_category(weak: slint::Weak<Main>, cat: &str) {
                 w.set_models_loading(true);
             }
         });
-        let res = block_on(hf::fetch_category(&cat));
+        let models = match block_on(hf::fetch_category(&cat)) {
+            Ok(cr) => cr.models,
+            Err(e) => {
+                tracing::warn!("fetch_category({cat}) failed: {e}");
+                Vec::new()
+            }
+        };
+        *cache.write().unwrap() = models.clone();
         let _ = slint::invoke_from_event_loop(move || {
             let Some(w) = weak.upgrade() else { return };
             let hw = hardware::Hardware::detect();
             let cfg = config::cfg();
-            let models = res.unwrap_or_default().models;
             let rows = build_model_rows(&models, &hw, &cfg);
             w.set_models(slint::ModelRc::new(slint::VecModel::from(rows)));
             w.set_models_loading(false);
@@ -224,8 +241,8 @@ fn fetch_category(weak: slint::Weak<Main>, cat: &str) {
     });
 }
 
-/// Free-text search (async on a worker thread).
-fn do_search(weak: slint::Weak<Main>, query: &str) {
+/// Free-text search: cache the models, then update the list (async).
+fn do_search(weak: slint::Weak<Main>, query: &str, cache: Arc<RwLock<Vec<model::Model>>>) {
     let q = query.to_string();
     thread::spawn(move || {
         let w1 = weak.clone();
@@ -234,12 +251,18 @@ fn do_search(weak: slint::Weak<Main>, query: &str) {
                 w.set_models_loading(true);
             }
         });
-        let res = block_on(hf::search(&q));
+        let models = match block_on(hf::search(&q)) {
+            Ok(m) => m,
+            Err(e) => {
+                tracing::warn!("search({q}) failed: {e}");
+                Vec::new()
+            }
+        };
+        *cache.write().unwrap() = models.clone();
         let _ = slint::invoke_from_event_loop(move || {
             let Some(w) = weak.upgrade() else { return };
             let hw = hardware::Hardware::detect();
             let cfg = config::cfg();
-            let models = res.unwrap_or_default();
             let rows = build_model_rows(&models, &hw, &cfg);
             w.set_models(slint::ModelRc::new(slint::VecModel::from(rows)));
             w.set_models_loading(false);
@@ -298,26 +321,35 @@ fn hex_color(hex: &str) -> slint::Color {
     slint::Color::from_rgb_f32(r, g, b)
 }
 
-/// Open a model's detail page: fetch files + build the quant table (async).
-fn open_detail(weak: slint::Weak<Main>, repo: &str, _chat_model_name: &Arc<RwLock<String>>) {
+/// Open a model's detail page: look up real data (cache) or a minimal fallback,
+/// then fetch files + build the quant table (async).
+fn open_detail(weak: slint::Weak<Main>, repo: &str, cache: Arc<RwLock<Vec<model::Model>>>) {
     let repo = repo.to_string();
     thread::spawn(move || {
         let cfg = config::cfg();
         let hw = hardware::Hardware::detect();
-        let model = model::Model {
-            repo_id: repo.clone(),
-            name: repo.clone(),
-            provider: repo.split('/').next().unwrap_or("").to_string(),
-            n_params_b: 8.0,
-            context: cfg.context_default,
-            license: String::new(),
-            commercial: true,
-            uses: vec![],
-            description: String::new(),
-            arch: String::new(),
-            release: String::new(),
-            superseded: false,
-            successor_id: String::new(),
+        // Prefer the real model (param count / context / description); else a
+        // conservative 8B placeholder so the perf table still renders.
+        let model = {
+            let c = cache.read().unwrap();
+            c.iter()
+                .find(|m| m.repo_id == repo)
+                .cloned()
+                .unwrap_or_else(|| model::Model {
+                    repo_id: repo.clone(),
+                    name: repo.clone(),
+                    provider: repo.split('/').next().unwrap_or("").to_string(),
+                    n_params_b: 8.0,
+                    context: cfg.context_default,
+                    license: String::new(),
+                    commercial: true,
+                    uses: vec![],
+                    description: String::new(),
+                    arch: String::new(),
+                    release: String::new(),
+                    superseded: false,
+                    successor_id: String::new(),
+                })
         };
 
         let s_in = cfg.context_default;
@@ -350,7 +382,7 @@ fn open_detail(weak: slint::Weak<Main>, repo: &str, _chat_model_name: &Arc<RwLoc
 
         let _ = slint::invoke_from_event_loop(move || {
             let Some(w) = weak.upgrade() else { return };
-            w.set_detail_repo(repo.clone().into());
+            w.set_detail_repo(model.repo_id.clone().into());
             w.set_detail_provider(model.provider.clone().into());
             w.set_detail_desc(model.description.clone().into());
             w.set_detail_rec_quant(quants[rec_i].name.clone().into());
