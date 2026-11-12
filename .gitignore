@@ -1,0 +1,17 @@
+/target
+*.exe
+target/
+dist/
+
+# build artifacts
+*.pdb
+*.ilk
+
+# ohllama data dir (never commit user models/config)
+.ohllama/
+**/.ohllama/
+
+# editor
+.idea/
+.vscode/
+*.swp

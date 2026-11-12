@@ -1,0 +1,521 @@
+// ohllama GUI — Claude-style, three pages (Engines / Models / Chat).
+// Slint 1.18 (customized build): unquoted hex colors, `color` type for dynamic
+// colors, visible-based page switching, std-widgets Button/ScrollView/LineEdit.
+// Uses only proven-safe constructs for this build.
+
+import { ScrollView, Button, LineEdit } from "std-widgets.slint";
+
+export struct EngineRow {
+    name: string,
+    present: bool,
+    precompiled: bool,
+    is_default: bool,
+    recommended: bool,
+    path: string,
+    note: string,
+}
+
+export struct ModelRow {
+    name: string,
+    provider: string,
+    rec_quant: string,
+    rec_quant_size: string,
+    ttft: string,
+    tpot: string,
+    total: string,
+    status_color: color,
+    status_label: string,
+    repo_id: string,
+}
+
+export struct QuantRow {
+    quant: string,
+    bits: string,
+    vram: string,
+    quality: string,
+    status: string,
+    status_color: color,
+}
+
+export struct FileRow {
+    name: string,
+    size: string,
+}
+
+export struct ChatMsg {
+    role: string,
+    content: string,
+}
+
+export component Main inherits Window {
+    title: "ohllama";
+    width: 980px;
+    height: 700px;
+
+    in-out property <int> page: 0;
+
+    in property <[EngineRow]> engines: [];
+    in property <string> hw_summary: "";
+    in property <string> rec_engine: "";
+    in property <string> rec_backend: "";
+    in property <string> default_engine: "";
+
+    in property <[ModelRow]> models: [];
+    in-out property <string> category: "hot";
+    in-out property <string> search_query: "";
+    in property <bool> models_loading: false;
+
+    in property <bool> detail_visible: false;
+    in property <string> detail_repo: "";
+    in property <string> detail_provider: "";
+    in property <string> detail_desc: "";
+    in property <string> detail_rec_quant: "";
+    in property <[QuantRow]> quant_table: [];
+    in property <[FileRow]> file_list: [];
+
+    in property <[ChatMsg]> chat: [];
+    in property <string> chat_model: "";
+    in property <string> chat_status: "";
+    in-out property <string> chat_input: "";
+
+    callback change_engine(string, string);
+    callback change_category(string);
+    callback do_search(string);
+    callback open_model(string);
+    callback close_detail();
+    callback download_model(string, string);
+    callback send_chat(string);
+
+    VerticalLayout {
+        width: 100%;
+        height: 100%;
+
+        Rectangle {
+            width: 100%;
+            height: 44px;
+            background: #f5f4f1;
+            HorizontalLayout {
+                width: 100%;
+                padding: 8px;
+                spacing: 6px;
+                Button {
+                    text: "Engines";
+                    primary: root.page == 0;
+                    width: 78px;
+                    height: 28px;
+                    clicked => { root.page = 0; }
+                }
+                Button {
+                    text: "Models";
+                    primary: root.page == 1;
+                    width: 78px;
+                    height: 28px;
+                    clicked => { root.page = 1; }
+                }
+                Button {
+                    text: "Chat";
+                    primary: root.page == 2;
+                    width: 60px;
+                    height: 28px;
+                    clicked => { root.page = 2; }
+                }
+                Text {
+                    text: "ohllama";
+                    color: #7a7873;
+                    font-size: 13px;
+                }
+            }
+        }
+
+        // =============== PAGE 1: ENGINES ===============
+        VerticalLayout {
+            visible: root.page == 0;
+            width: 100%;
+            height: 100%;
+            padding: 14px;
+            spacing: 8px;
+
+            Text {
+                text: "Inference engines";
+                color: #3d3c39;
+                font-size: 18px;
+                font-weight: 600;
+            }
+            Text {
+                text: "Hardware: " + root.hw_summary;
+                color: #7a7873;
+                font-size: 12px;
+                width: 100%;
+                max-lines: 2;
+            }
+            Rectangle {
+                width: 100%;
+                height: 52px;
+                background: #f0ede6;
+                border-radius: 8px;
+                clip: true;
+                HorizontalLayout {
+                    width: 100%;
+                    padding: 10px;
+                    spacing: 10px;
+                    Text {
+                        text: "Recommended backend";
+                        color: #7a7873;
+                        font-size: 12px;
+                        width: 150px;
+                    }
+                    Text {
+                        text: root.rec_engine + "  ·  " + root.rec_backend;
+                        color: #3d3c39;
+                        font-size: 15px;
+                        font-weight: 600;
+                        width: 300px;
+                    }
+                    Text {
+                        text: "Default: " + root.default_engine;
+                        color: #7a7873;
+                        font-size: 12px;
+                    }
+                }
+            }
+
+            ScrollView {
+                width: 100%;
+                height: 100%;
+                for engine in root.engines:
+                    Rectangle {
+                        width: 100%;
+                        height: 66px;
+                        background: white;
+                        border-color: #e5e1d8;
+                        border-width: 1px;
+                        border-radius: 10px;
+                        clip: true;
+                        HorizontalLayout {
+                            width: 100%;
+                            padding: 8px;
+                            spacing: 10px;
+                            Rectangle {
+                                width: 4px;
+                                height: 40px;
+                                border-radius: 2px;
+                                background: engine.present ? #4ade80 : #e5e1d8;
+                            }
+                            VerticalLayout {
+                                width: 100%;
+                                height: 100%;
+                                spacing: 3px;
+                                Text {
+                                    text: engine.name;
+                                    color: #3d3c39;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    width: 280px;
+                                    max-lines: 1;
+                                }
+                                Text {
+                                    text: (engine.precompiled ? "precompiled · " : "") + engine.note
+                                         + (engine.path != "" ? "  ·  " + engine.path : "");
+                                    color: #8c8a84;
+                                    font-size: 11px;
+                                    width: 500px;
+                                    max-lines: 1;
+                                }
+                                HorizontalLayout {
+                                    spacing: 6px;
+                                    Text {
+                                        text: engine.is_default ? "★ default" : "";
+                                        color: #c08700;
+                                        font-size: 11px;
+                                    }
+                                    Text {
+                                        text: engine.recommended ? "● recommended for this hardware" : "";
+                                        color: #4ade80;
+                                        font-size: 11px;
+                                    }
+                                    Text {
+                                        text: engine.present ? "installed" : "missing";
+                                        color: engine.present ? #4ade80 : #f97316;
+                                        font-size: 11px;
+                                    }
+                                }
+                            }
+                            Button {
+                                text: engine.present ? "Set default" : "Download";
+                                primary: true;
+                                width: 108px;
+                                height: 26px;
+                                clicked => {
+                                    if (engine.present) {
+                                        root.change_engine("default", engine.name);
+                                    } else {
+                                        root.change_engine("download", engine.name);
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+        }
+
+        // =============== PAGE 2: MODELS ===============
+        VerticalLayout {
+            visible: root.page == 1;
+            width: 100%;
+            height: 100%;
+            padding: 14px;
+            spacing: 8px;
+
+            HorizontalLayout {
+                width: 100%;
+                spacing: 6px;
+                LineEdit {
+                    text: root.search_query;
+                    placeholder-text: "Search HuggingFace";
+                    width: 180px;
+                    edited => {
+                        root.search_query = self.text;
+                        root.do_search(self.text);
+                    }
+                }
+                Button { text: "Hot"; primary: root.category == "hot"; width: 52px; height: 24px; clicked => { root.category = "hot"; root.change_category("hot"); } }
+                Button { text: "Coding"; primary: root.category == "coding"; width: 62px; height: 24px; clicked => { root.category = "coding"; root.change_category("coding"); } }
+                Button { text: "Image"; primary: root.category == "image"; width: 56px; height: 24px; clicked => { root.category = "image"; root.change_category("image"); } }
+                Button { text: "Video"; primary: root.category == "video"; width: 56px; height: 24px; clicked => { root.category = "video"; root.change_category("video"); } }
+                Button { text: "Tiny"; primary: root.category == "tiny"; width: 48px; height: 24px; clicked => { root.category = "tiny"; root.change_category("tiny"); } }
+            }
+
+            ScrollView {
+                visible: !root.detail_visible;
+                width: 100%;
+                height: 100%;
+                Text {
+                    visible: root.models_loading;
+                    text: "Loading...";
+                    color: #7a7873;
+                    font-size: 12px;
+                }
+                HorizontalLayout {
+                    visible: !root.models_loading;
+                    width: 100%;
+                    spacing: 4px;
+                    Text { text: "Model"; color: #b5b3ad; font-size: 11px; width: 170px; }
+                    Text { text: "Provider"; color: #b5b3ad; font-size: 11px; width: 90px; }
+                    Text { text: "Rec. quant"; color: #b5b3ad; font-size: 11px; width: 74px; }
+                    Text { text: "Rec. size"; color: #b5b3ad; font-size: 11px; width: 66px; }
+                    Text { text: "TTFT"; color: #b5b3ad; font-size: 11px; width: 54px; }
+                    Text { text: "TPOT"; color: #b5b3ad; font-size: 11px; width: 54px; }
+                    Text { text: "Total"; color: #b5b3ad; font-size: 11px; width: 54px; }
+                    Text { text: "Status"; color: #b5b3ad; font-size: 11px; width: 120px; }
+                }
+                for m in root.models:
+                    Rectangle {
+                        width: 100%;
+                        height: 46px;
+                        background: white;
+                        border-color: #edeae3;
+                        border-width: 1px;
+                        border-radius: 8px;
+                        clip: true;
+                        TouchArea {
+                            width: 100%;
+                            height: 100%;
+                            clicked => { root.open_model(m.repo_id); }
+                        }
+                        HorizontalLayout {
+                            width: 100%;
+                            padding: 6px;
+                            spacing: 4px;
+                            Text {
+                                text: m.name;
+                                color: #3d3c39;
+                                font-size: 13px;
+                                font-weight: 600;
+                                width: 170px;
+                                max-lines: 1;
+                            }
+                            Text { text: m.provider; color: #8c8a84; font-size: 12px; width: 90px; max-lines: 1; }
+                            Text { text: m.rec_quant; color: #c08700; font-size: 12px; width: 74px; }
+                            Text { text: m.rec_quant_size; color: #8c8a84; font-size: 12px; width: 66px; }
+                            Text { text: m.ttft; color: #5f5e5b; font-size: 12px; width: 54px; }
+                            Text { text: m.tpot; color: #5f5e5b; font-size: 12px; width: 54px; }
+                            Text { text: m.total; color: #5f5e5b; font-size: 12px; width: 54px; }
+                            Text {
+                                text: m.status_label;
+                                color: m.status_color;
+                                font-size: 11px;
+                                font-weight: 600;
+                                width: 120px;
+                                max-lines: 1;
+                            }
+                        }
+                    }
+            }
+
+            ScrollView {
+                visible: root.detail_visible;
+                width: 100%;
+                height: 100%;
+                HorizontalLayout {
+                    width: 100%;
+                    spacing: 8px;
+                    Button {
+                        text: "< Back";
+                        width: 62px;
+                        height: 24px;
+                        clicked => { root.close_detail(); }
+                    }
+                    Text {
+                        text: root.detail_repo;
+                        color: #3d3c39;
+                        font-size: 18px;
+                        font-weight: 600;
+                        width: 560px;
+                        max-lines: 1;
+                    }
+                    Text {
+                        text: root.detail_provider;
+                        color: #8c8a84;
+                        font-size: 12px;
+                    }
+                }
+                Text {
+                    text: root.detail_desc;
+                    color: #5f5e5b;
+                    font-size: 13px;
+                    width: 100%;
+                    max-lines: 2;
+                }
+
+                Rectangle {
+                    width: 100%;
+                    background: white;
+                    border-color: #e5e1d8;
+                    border-width: 1px;
+                    border-radius: 10px;
+                    clip: true;
+                    VerticalLayout {
+                        width: 100%;
+                        spacing: 5px;
+                        padding: 10px;
+                        Text {
+                            text: "Quantizations   (recommended: " + root.detail_rec_quant + ")";
+                            color: #3d3c39;
+                            font-size: 13px;
+                            font-weight: 600;
+                        }
+                        for q in root.quant_table:
+                            Text {
+                                text: q.quant + "   ·   " + q.bits + " b   ·   " + q.vram
+                                     + "   ·   " + q.quality + "   ·   " + q.status;
+                                color: q.status_color;
+                                font-size: 12px;
+                                width: 100%;
+                                max-lines: 1;
+                            }
+                    }
+                }
+
+                Rectangle {
+                    width: 100%;
+                    background: white;
+                    border-color: #e5e1d8;
+                    border-width: 1px;
+                    border-radius: 10px;
+                    clip: true;
+                    VerticalLayout {
+                        width: 100%;
+                        spacing: 5px;
+                        padding: 10px;
+                        Text {
+                            text: "Files & versions";
+                            color: #3d3c39;
+                            font-size: 13px;
+                            font-weight: 600;
+                        }
+                        for f in root.file_list:
+                            Text {
+                                text: f.name + "  -  " + f.size;
+                                color: #3d3c39;
+                                font-size: 12px;
+                                width: 100%;
+                                max-lines: 1;
+                            }
+                    }
+                }
+
+                Button {
+                    text: "Download (" + root.detail_rec_quant + ")  ·  fastest mirror, 32/64 threads";
+                    primary: true;
+                    width: 420px;
+                    height: 32px;
+                    clicked => { root.download_model(root.detail_repo, root.detail_rec_quant); }
+                }
+            }
+        }
+
+        // =============== PAGE 3: CHAT ===============
+        VerticalLayout {
+            visible: root.page == 2;
+            width: 100%;
+            height: 100%;
+            padding: 14px;
+            spacing: 8px;
+
+            HorizontalLayout {
+                width: 100%;
+                spacing: 8px;
+                Text {
+                    text: "Model: " + root.chat_model;
+                    color: #8c8a84;
+                    font-size: 12px;
+                }
+                Text {
+                    text: root.chat_status;
+                    color: #4ade80;
+                    font-size: 12px;
+                }
+            }
+
+            ScrollView {
+                width: 100%;
+                height: 100%;
+                for msg in root.chat:
+                    Rectangle {
+                        width: 100%;
+                        background: msg.role == "user" ? #3d3c39 : #f0ede6;
+                        border-radius: 8px;
+                        clip: true;
+                        Text {
+                            x: 8px;
+                            y: 6px;
+                            text: msg.content;
+                            color: msg.role == "user" ? white : #3d3c39;
+                            font-size: 13px;
+                            width: 96%;
+                        }
+                    }
+            }
+
+            HorizontalLayout {
+                width: 100%;
+                spacing: 8px;
+                LineEdit {
+                    text: root.chat_input;
+                    placeholder-text: "Send a message";
+                    width: 780px;
+                }
+                Button {
+                    text: "Send";
+                    primary: true;
+                    width: 66px;
+                    height: 26px;
+                    clicked => {
+                        root.send_chat(root.chat_input);
+                        root.chat_input = "";
+                    }
+                }
+            }
+        }
+    }
+}

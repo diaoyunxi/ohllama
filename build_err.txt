@@ -1,0 +1,846 @@
+﻿cargo :    Compiling ohllama v0.1.0 (D:\瀛╁瓙\github\ohllama)
+At line:1 char:69
++ ... hub\ohllama"; $env:CARGO_TERM_COLOR="never"; cargo build 2>&1 | Out-F ...
++                                                  ~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (   Compiling oh...github\ohllama):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+error: failed to run custom build command for `ohllama v0.1.0 (D:\瀛╁瓙\github\ohllama)`
+
+Caused by:
+  process didn't exit successfully: 
+`D:\瀛╁瓙\github\ohllama\target\debug\build\ohllama-6826e9168c611cbb\build-script-build` (exit code: 101)
+  --- stderr
+  error: Unknown element 'PillTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:97:17
+      |
+   97 |                 PillTabButton {
+      |                 ^^^^^^^^^^^^^^
+      |
+  error: Unknown element 'PillTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:102:17
+      |
+  102 |                 PillTabButton {
+      |                 ^^^^^^^^^^^^^^
+  error: Unknown element 'PillTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:107:17
+      |
+  107 |                 PillTabButton {
+      |                 ^^^^^^^^^^^^^^
+  error: Unknown element 'StackedLayout'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:123:9
+      |
+  123 |         StackedLayout {
+      |         ^^^^^^^^^^^^^^
+  error: Unknown element 'Spacer'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:162:25
+      |
+  162 |                         Spacer { }
+      |                         ^^^^^^^
+  error: Unknown element 'ScrollView'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:170:17
+      |
+  170 |                 ScrollView {
+      |                 ^^^^^^^^^^^
+  error: Unknown element 'EngineCard'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:175:25
+      |
+  175 |                         EngineCard {
+      |                         ^^^^^^^^^^^
+  error: Unknown element 'CatTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:207:21
+      |
+  207 | ...   CatTabButton { label: "Hot"; active: root.category == "hot"; clicked => { root.category = "hot"; 
+root.change_category("hot");...
+      |       ^^^^^^^^^^^^^
+  error: Unknown element 'CatTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:208:21
+      |
+  208 | ...   CatTabButton { label: "Coding"; active: root.category == "coding"; clicked => { root.category = 
+"coding"; root.change_categor...
+      |       ^^^^^^^^^^^^^
+  error: Unknown element 'CatTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:209:21
+      |
+  209 | ...   CatTabButton { label: "Image"; active: root.category == "image"; clicked => { root.category = "image"; 
+root.change_category("...
+      |       ^^^^^^^^^^^^^
+  error: Unknown element 'CatTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:210:21
+      |
+  210 | ...   CatTabButton { label: "Video"; active: root.category == "video"; clicked => { root.category = "video"; 
+root.change_category("...
+      |       ^^^^^^^^^^^^^
+  error: Unknown element 'CatTabButton'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:211:21
+      |
+  211 | ...   CatTabButton { label: "Tiny"; active: root.category == "tiny"; clicked => { root.category = "tiny"; 
+root.change_category("tin...
+      |       ^^^^^^^^^^^^^
+  error: Unknown element 'StackedLayout'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:213:17
+      |
+  213 |                 StackedLayout {
+      |                 ^^^^^^^^^^^^^^
+  error: Unknown element 'ScrollView'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:217:21
+      |
+  217 |                     ScrollView {
+      |                     ^^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:232:29
+      |
+  232 | ...                   ColHeader { title: "Model"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:233:29
+      |
+  233 | ...                   ColHeader { title: "Provider"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:234:29
+      |
+  234 | ...                   ColHeader { title: "Rec. quant"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:235:29
+      |
+  235 | ...                   ColHeader { title: "Rec. size"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:236:29
+      |
+  236 | ...                   ColHeader { title: "TTFT"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:237:29
+      |
+  237 | ...                   ColHeader { title: "TPOT"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:238:29
+      |
+  238 | ...                   ColHeader { title: "Total"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ColHeader'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:239:29
+      |
+  239 | ...                   ColHeader { title: "Status"; }
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ModelCard'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:242:29
+      |
+  242 | ...                   ModelCard {
+      |                       ^^^^^^^^^^
+  error: Unknown element 'ModelDetail'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:256:21
+      |
+  256 |                     ModelDetail {
+      |                     ^^^^^^^^^^^^
+  error: Unknown element 'ChatPage'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:270:13
+      |
+  270 |             ChatPage {
+      |             ^^^^^^^^^
+  error: Unknown property brush in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:289:9
+      |
+  289 |         brush: root.active ? "#3D3C39" : "transparent";
+      |         ^^^^^
+  error: Unknown property color in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:290:9
+      |
+  290 |         color: root.active ? "#FFFFFF" : "#5F5E5B";
+      |         ^^^^^
+  error: Unknown property border-radius in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:291:9
+      |
+  291 |         border-radius: 6px;
+      |         ^^^^^^^^^^^^^
+  error: Unknown property font-size in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:292:9
+      |
+  292 |         font-size: 13px;
+      |         ^^^^^^^^^
+  error: Unknown property brush in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:305:9
+      |
+  305 |         brush: root.active ? "#E5E1D8" : "transparent";
+      |         ^^^^^
+  error: Unknown property color in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:306:9
+      |
+  306 |         color: root.active ? "#3D3C39" : "#8C8A84";
+      |         ^^^^^
+  error: Unknown property border-radius in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:307:9
+      |
+  307 |         border-radius: 6px;
+      |         ^^^^^^^^^^^^^
+  error: Unknown property font-size in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:308:9
+      |
+  308 |         font-size: 12px;
+      |         ^^^^^^^^^
+  error: Unknown property wrap-mode in Text
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:322:9
+      |
+  322 |         wrap-mode: WrapMode.no-wrap;
+      |         ^^^^^^^^^
+  error: Unknown property wrap-mode in Text
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:367:21
+      |
+  367 |                     wrap-mode: WrapMode.no-wrap;
+      |                     ^^^^^^^^^
+  error: Unknown property brush in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:392:17
+      |
+  392 |                 brush: "#3D3C39";
+      |                 ^^^^^
+  error: Unknown property color in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:393:17
+      |
+  393 |                 color: "#FFFFFF";
+      |                 ^^^^^
+  error: Unknown property border-radius in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:394:17
+      |
+  394 |                 border-radius: 5px;
+      |                 ^^^^^^^^^^^^^
+  error: Unknown property font-size in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:395:17
+      |
+  395 |                 font-size: 11px;
+      |                 ^^^^^^^^^
+  error: Unknown element 'MouseArea'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:424:9
+      |
+  424 |         MouseArea {
+      |         ^^^^^^^^^^
+  error: Unknown property wrap-mode in Text
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:438:17
+      |
+  438 |                 wrap-mode: WrapMode.no-wrap;
+      |                 ^^^^^^^^^
+  error: Unknown element 'ScrollView'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:465:5
+      |
+  465 |     ScrollView {
+      |     ^^^^^^^^^^^
+  error: Unknown property brush in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:476:17
+      |
+  476 |                 brush: "transparent";
+      |                 ^^^^^
+  error: Unknown property color in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:477:17
+      |
+  477 |                 color: "#8C8A84";
+      |                 ^^^^^
+  error: Unknown property border-radius in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:478:17
+      |
+  478 |                 border-radius: 5px;
+      |                 ^^^^^^^^^^^^^
+  error: Unknown property font-size in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:479:17
+      |
+  479 |                 font-size: 12px;
+      |                 ^^^^^^^^^
+  error: Unknown property wrap-mode in Text
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:513:25
+      |
+  513 |                         wrap-mode: WrapMode.no-wrap;
+      |                         ^^^^^^^^^
+  error: Unknown property wrap-mode in Text
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:532:25
+      |
+  532 |                         wrap-mode: WrapMode.no-wrap;
+      |                         ^^^^^^^^^
+  error: Unknown property brush in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:540:13
+      |
+  540 |             brush: "#3D3C39";
+      |             ^^^^^
+  error: Unknown property color in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:541:13
+      |
+  541 |             color: "#FFFFFF";
+      |             ^^^^^
+  error: Unknown property border-radius in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:542:13
+      |
+  542 |             border-radius: 8px;
+      |             ^^^^^^^^^^^^^
+  error: Unknown property font-size in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:543:13
+      |
+  543 |             font-size: 13px;
+      |             ^^^^^^^^^
+  error: Unknown element 'ScrollView'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:574:9
+      |
+  574 |         ScrollView {
+      |         ^^^^^^^^^^^
+  error: Unknown element 'ChatBubble'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:579:17
+      |
+  579 |                 ChatBubble {
+      |                 ^^^^^^^^^^^
+  error: Unknown property brush in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:597:17
+      |
+  597 |                 brush: "#3D3C39";
+      |                 ^^^^^
+  error: Unknown property color in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:598:17
+      |
+  598 |                 color: "#FFFFFF";
+      |                 ^^^^^
+  error: Unknown property border-radius in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:599:17
+      |
+  599 |                 border-radius: 6px;
+      |                 ^^^^^^^^^^^^^
+  error: Unknown property font-size in Button
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:600:17
+      |
+  600 |                 font-size: 12px;
+      |                 ^^^^^^^^^
+  error: Unknown property wrap-mode in Text
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:622:13
+      |
+  622 |             wrap-mode: WrapMode.word-wrap;
+      |             ^^^^^^^^^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:281:1
+      |
+  281 | / component PillTabButton {
+  282 | |     in property <string> label: "";
+  283 | |     in property <bool> active: false;
+  284 | |     callback clicked();
+  ...   |
+  295 | | }
+      | |_^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:297:1
+      |
+  297 | / component CatTabButton {
+  298 | |     in property <string> label: "";
+  299 | |     in property <bool> active: false;
+  300 | |     callback clicked();
+  ...   |
+  311 | | }
+      | |_^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:313:1
+      |
+  313 | / component ColHeader {
+  314 | |     in property <string> title: "";
+  315 | |     Text {
+  316 | |         text: root.title;
+  ...   |
+  324 | | }
+      | |_^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:326:1
+      |
+  326 | / component EngineCard {
+  327 | |     in property <string> name: "";
+  328 | |     in property <bool> present: false;
+  329 | |     in property <bool> precompiled: false;
+  ...   |
+  402 | | }
+      | |_^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:404:1
+      |
+  404 | / component ModelCard {
+  405 | |     in property <string> name: "";
+  406 | |     in property <string> provider: "";
+  407 | |     in property <string> rec_quant: "";
+  ...   |
+  454 | | }
+      | |_^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:456:1
+      |
+  456 | / component ModelDetail {
+  457 | |     in property <string> repo: "";
+  458 | |     in property <string> provider: "";
+  459 | |     in property <string> desc: "";
+  ...   |
+  547 | | }
+      | |_^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:549:1
+      |
+  549 | / component ChatPage {
+  550 | |     in property <[ChatMsg]> chat: [];
+  551 | |     in property <string> model: "";
+  552 | |     in property <string> status: "";
+  ...   |
+  608 | | }
+      | |_^
+  warning: Component is neither used nor exported
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:610:1
+      |
+  610 | / component ChatBubble {
+  611 | |     in property <string> role: "";
+  612 | |     in property <string> content: "";
+  613 | |     Rectangle {
+  ...   |
+  625 | | }
+      | |_^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:89:25
+      |
+   89 |             background: "#F5F4F1";
+      |                         ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:112:67
+      |
+  112 |                 Rectangle { width: 1px; height: 24px; background: "#D8D4CA"; }
+      |                                                                   ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:116:28
+      |
+  116 |                     color: "#7A7873";
+      |                            ^^^^^^^^^^
+  error: Unknown unqualified identifier 'middle'. Did you mean 'PointerEventButton.middle'?
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:117:41
+      |
+  117 |                     vertical-alignment: middle;
+      |                                         ^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:121:59
+      |
+  121 |         Rectangle { width: 100%; height: 1px; background: "#E5E1D8"; }
+      |                                                           ^^^^^^^^^^
+  error: Unknown unqualified identifier 'fill'. Did you mean 'ImageFit.fill'?
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:124:24
+      |
+  124 |             alignment: fill;
+      |                        ^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:126:21
+      |
+  126 |             height: 1fr;
+      |                     ^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:134:75
+      |
+  134 |                 Text { text: "Inference engines"; font-size: 18px; color: "#3D3C39"; font-weight: 600; }
+      |                                                                           ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:138:28
+      |
+  138 |                     color: "#7A7873";
+      |                            ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:144:33
+      |
+  144 |                     background: "#F0EDE6";
+      |                                 ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:152:36
+      |
+  152 | ...                   color: "#7A7873";
+      |                              ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:158:36
+      |
+  158 | ...                   color: "#3D3C39";
+      |                              ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:166:36
+      |
+  166 | ...                   color: "#7A7873";
+      |                              ^^^^^^^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:172:29
+      |
+  172 |                     height: 1fr;
+      |                             ^^^
+  error: Unknown unqualified identifier 'fill'. Did you mean 'ImageFit.fill'?
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:216:32
+      |
+  216 |                     alignment: fill;
+      |                                ^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:215:29
+      |
+  215 |                     height: 1fr;
+      |                             ^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:225:36
+      |
+  225 | ...                   color: "#7A7873";
+      |                              ^^^^^^^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:286:16
+      |
+  286 |         width: 1fr;
+      |                ^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:302:16
+      |
+  302 |         width: 1fr;
+      |                ^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:318:16
+      |
+  318 |         color: "#B5B3AD";
+      |                ^^^^^^^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:319:16
+      |
+  319 |         width: 1fr;
+      |                ^^^
+  error: Cannot access id 'WrapMode'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:322:20
+      |
+  322 |         wrap-mode: WrapMode.no-wrap;
+      |                    ^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:340:21
+      |
+  340 |         background: "#FFFFFF";
+      |                     ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:341:23
+      |
+  341 |         border-color: "#E5E1D8";
+      |                       ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:351:29
+      |
+  351 |                 background: root.present ? "#4ADE80" : "#E5E1D8";
+      |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:354:24
+      |
+  354 |                 width: 1fr;
+      |                        ^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:360:28
+      |
+  360 |                     color: "#3D3C39";
+      |                            ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:366:28
+      |
+  366 |                     color: "#8C8A84";
+      |                            ^^^^^^^^^^
+  error: Cannot access id 'WrapMode'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:367:32
+      |
+  367 |                     wrap-mode: WrapMode.no-wrap;
+      |                                ^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:374:32
+      |
+  374 |                         color: "#C08700";
+      |                                ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:379:32
+      |
+  379 |                         color: "#4ADE80";
+      |                                ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:384:32
+      |
+  384 |                         color: root.present ? "#4ADE80" : "#F97316";
+      |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:420:21
+      |
+  420 |         background: "#FFFFFF";
+      |                     ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:421:23
+      |
+  421 |         border-color: "#EDEAE3";
+      |                       ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:435:24
+      |
+  435 |                 color: "#3D3C39";
+      |                        ^^^^^^^^^^
+  error: Cannot access id 'WrapMode'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:438:28
+      |
+  438 |                 wrap-mode: WrapMode.no-wrap;
+      |                            ^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:440:65
+      |
+  440 |             Text { text: root.provider; font-size: 12px; color: "#8C8A84"; width: 100px; }
+      |                                                                 ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:441:66
+      |
+  441 |             Text { text: root.rec_quant; font-size: 12px; color: "#C08700"; width: 80px; }
+      |                                                                  ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:442:71
+      |
+  442 |             Text { text: root.rec_quant_size; font-size: 12px; color: "#8C8A84"; width: 80px; }
+      |                                                                       ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:443:61
+      |
+  443 |             Text { text: root.ttft; font-size: 12px; color: "#5F5E5B"; width: 70px; }
+      |                                                             ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:444:61
+      |
+  444 |             Text { text: root.tpot; font-size: 12px; color: "#5F5E5B"; width: 70px; }
+      |                                                             ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:445:62
+      |
+  445 |             Text { text: root.total; font-size: 12px; color: "#5F5E5B"; width: 70px; }
+      |                                                              ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:449:24
+      |
+  449 |                 color: root.status_color;
+      |                        ^^^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:485:24
+      |
+  485 |                 color: "#3D3C39";
+      |                        ^^^^^^^^^^
+  error: Unknown unqualified identifier 'middle'. Did you mean 'PointerEventButton.middle'?
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:487:37
+      |
+  487 |                 vertical-alignment: middle;
+      |                                     ^^^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:488:24
+      |
+  488 |                 width: 1fr;
+      |                        ^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:490:65
+      |
+  490 |             Text { text: root.provider; font-size: 12px; color: "#8C8A84"; }
+      |                                                                 ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:492:57
+      |
+  492 |         Text { text: root.desc; font-size: 13px; color: "#5F5E5B"; }
+      |                                                         ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:496:27
+      |
+  496 |             border-color: "#E5E1D8";
+      |                           ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:504:28
+      |
+  504 |                     color: "#3D3C39";
+      |                            ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:511:32
+      |
+  511 |                         color: q.status_color;
+      |                                ^^^^^^^^^^^^^^^
+  error: Cannot access id 'WrapMode'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:513:36
+      |
+  513 |                         wrap-mode: WrapMode.no-wrap;
+      |                                    ^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:520:27
+      |
+  520 |             border-color: "#E5E1D8";
+      |                           ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:525:76
+      |
+  525 |                 Text { text: "Files and versions"; font-size: 13px; color: "#3D3C39"; font-weight: 600; }
+      |                                                                            ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:530:32
+      |
+  530 |                         color: "#3D3C39";
+      |                                ^^^^^^^^^^
+  error: Cannot access id 'WrapMode'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:532:36
+      |
+  532 |                         wrap-mode: WrapMode.no-wrap;
+      |                                    ^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:566:24
+      |
+  566 |                 color: "#8C8A84";
+      |                        ^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:571:24
+      |
+  571 |                 color: root.status == "" ? "#8C8A84" : "#4ADE80";
+      |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:576:21
+      |
+  576 |             height: 1fr;
+      |                     ^^^
+  error: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:590:24
+      |
+  590 |                 width: 1fr;
+      |                        ^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:616:21
+      |
+  616 |         background: root.role == "user" ? "#3D3C39" : "#F0EDE6";
+      |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  error: Cannot convert string to brush
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:621:20
+      |
+  621 |             color: root.role == "user" ? "#FFFFFF" : "#3D3C39";
+      |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  error: Cannot access id 'WrapMode'
+     --> D:\瀛╁瓙\github\ohllama\src\ui\ohllama.slint:622:24
+      |
+  622 |             wrap-mode: WrapMode.word-wrap;
+      |                        ^^^^^^^^^^^^^^^^^^
+
+  thread 'main' (11104) panicked at build.rs:4:50:
+  called `Result::unwrap()` on an `Err` value: CompileError(["D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:97: 
+Unknown element 'PillTabButton'", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:102: Unknown element 
+'PillTabButton'", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:107: Unknown element 'PillTabButton'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:123: Unknown element 'StackedLayout'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:162: Unknown element 'Spacer'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:170: Unknown element 'ScrollView'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:175: Unknown element 'EngineCard'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:207: Unknown element 'CatTabButton'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:208: Unknown element 'CatTabButton'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:209: Unknown element 'CatTabButton'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:210: Unknown element 'CatTabButton'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:211: Unknown element 'CatTabButton'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:213: Unknown element 'StackedLayout'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:217: Unknown element 'ScrollView'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:232: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:233: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:234: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:235: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:236: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:237: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:238: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:239: Unknown element 'ColHeader'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:242: Unknown element 'ModelCard'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:256: Unknown element 'ModelDetail'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:270: Unknown element 'ChatPage'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:289: Unknown property brush in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:290: Unknown property color in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:291: Unknown property border-radius in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:292: Unknown property font-size in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:305: Unknown property brush in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:306: Unknown property color in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:307: Unknown property border-radius in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:308: Unknown property font-size in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:322: Unknown property wrap-mode in Text", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:367: Unknown property wrap-mode in Text", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:392: Unknown property brush in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:393: Unknown property color in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:394: Unknown property border-radius in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:395: Unknown property font-size in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:424: Unknown element 'MouseArea'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:438: Unknown property wrap-mode in Text", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:465: Unknown element 'ScrollView'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:476: Unknown property brush in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:477: Unknown property color in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:478: Unknown property border-radius in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:479: Unknown property font-size in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:513: Unknown property wrap-mode in Text", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:532: Unknown property wrap-mode in Text", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:540: Unknown property brush in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:541: Unknown property color in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:542: Unknown property border-radius in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:543: Unknown property font-size in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:574: Unknown element 'ScrollView'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:579: Unknown element 'ChatBubble'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:597: Unknown property brush in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:598: Unknown property color in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:599: Unknown property border-radius in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:600: Unknown property font-size in Button", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:622: Unknown property wrap-mode in Text", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:281: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:297: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:313: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:326: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:404: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:456: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:549: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:610: Component is neither used nor exported", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:89: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:112: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:116: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:117: Unknown unqualified identifier 'middle'. Did you mean 
+'PointerEventButton.middle'?", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:121: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:124: Unknown unqualified identifier 'fill'. Did you mean 
+'ImageFit.fill'?", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:126: Invalid unit 'fr'. Valid units are: %, phx, 
+px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:134: Cannot 
+convert string to brush", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:138: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:144: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:152: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:158: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:166: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:172: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, 
+rem, s, ms, deg, grad, turn, rad", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:216: Unknown unqualified 
+identifier 'fill'. Did you mean 'ImageFit.fill'?", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:215: Invalid unit 
+'fr'. Valid units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:225: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:286: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, 
+rem, s, ms, deg, grad, turn, rad", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:302: Invalid unit 'fr'. Valid 
+units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:318: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:319: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, 
+rem, s, ms, deg, grad, turn, rad", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:322: Cannot access id 
+'WrapMode'", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:340: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:341: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:351: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:354: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, 
+rem, s, ms, deg, grad, turn, rad", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:360: Cannot convert string to 
+brush", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:366: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:367: Cannot access id 'WrapMode'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:374: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:379: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:384: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:420: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:421: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:435: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:438: Cannot access id 'WrapMode'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:440: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:441: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:442: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:443: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:444: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:445: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:449: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:485: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:487: Unknown unqualified identifier 'middle'. Did you mean 
+'PointerEventButton.middle'?", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:488: Invalid unit 'fr'. Valid units 
+are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:490: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:492: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:496: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:504: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:511: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:513: Cannot access id 'WrapMode'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:520: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:525: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:530: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:532: Cannot access id 'WrapMode'", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:566: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:571: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:576: Invalid unit 'fr'. Valid units are: %, phx, px, cm, mm, in, pt, 
+rem, s, ms, deg, grad, turn, rad", "D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:590: Invalid unit 'fr'. Valid 
+units are: %, phx, px, cm, mm, in, pt, rem, s, ms, deg, grad, turn, rad", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:616: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:621: Cannot convert string to brush", 
+"D:\\瀛╁瓙\\github\\ohllama\\src\\ui\\ohllama.slint:622: Cannot access id 'WrapMode'"])
+  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

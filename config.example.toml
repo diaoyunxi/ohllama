@@ -1,0 +1,33 @@
+# ohllama example config.
+# Copy to ~/.ohllama/config.toml (or set OHLLAMA_HOME) and adjust.
+#
+# HuggingFace base. Point this at https://hf-mirror.com (or any mirror) to
+# speed up reads/downloads in restricted networks.
+hf_endpoint = "https://hf-mirror.com"
+# Optional bearer token for gated models (leave empty for public models).
+hf_token = ""
+
+# Mirrors tried, in order of preference, when picking the fastest one for a
+# download. The first reachable one wins.
+mirror_candidates = ["https://hf-mirror.com", "https://huggingface.co", "https://hf.co"]
+
+# Parallel download threads (32/64 as requested).
+download_threads = 32
+
+# Default inference engine: one of llama.cpp | ollama | vllm | lmstudio | ggml.
+# Leave empty to auto-pick the best backend for your hardware.
+default_engine = ""
+
+# --- Performance calibration (the three accuracy knobs) ---
+# Effective memory bandwidth on your hardware, in GiB/s. Calibrate with a
+# real benchmark; 40.0 ~ 2-channel DDR4.
+calibration_bw_eff = 40.0
+# Prefill MFU: fraction of peak FLOPs actually achieved by the backend (0..1).
+eta_prefill = 0.5
+# Weight-streaming efficiency (0..1).
+eta_weight = 0.8
+# KV-cache access efficiency on your hardware/backend (0..1).
+eta_kv = 0.7
+
+# Default context length used for the TTFT/TPOT estimates.
+context_default = 4096
