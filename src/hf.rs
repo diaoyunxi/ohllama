@@ -14,11 +14,18 @@ type Result<T> = std::result::Result<T, anyhow::Error>;
 fn client() -> Result<reqwest::Client> {
     let cfg = config::cfg();
     let mut b = reqwest::Client::builder().timeout(std::time::Duration::from_secs(30));
-    if !cfg.hf_token.is_empty() {
+    // README documents HF_TOKEN as an override; prefer it over config.toml.
+    let token = std::env::var("HF_TOKEN")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or(cfg.hf_token.clone());
+    if !token.is_empty() {
         b = b.default_headers({
             let mut h = reqwest::header::HeaderMap::new();
-            let v = format!("Bearer {}", cfg.hf_token);
-            h.insert(reqwest::header::AUTHORIZATION, v.parse().unwrap());
+            // A token containing control characters must not panic the process.
+            if let Ok(v) = reqwest::header::HeaderValue::from_str(&format!("Bearer {token}")) {
+                h.insert(reqwest::header::AUTHORIZATION, v);
+            }
             h
         });
     }
@@ -233,9 +240,7 @@ pub async fn fetch_category(category: &str) -> Result<CategoryResult> {
             candidates.push(m.trim_end_matches('/').to_string());
         }
     }
-    if let Ok(b) = std::env::var("HF_ENDPOINT") {
-        candidates.insert(0, b.trim_end_matches('/').to_string());
-    }
+    // HF_ENDPOINT is applied centrally by config::cfg().
 
     let c = client()?;
     for ep in &candidates {

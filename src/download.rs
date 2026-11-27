@@ -40,7 +40,10 @@ pub struct MirrorProbe {
 /// Probe each mirror and return them sorted fastest-first.
 pub async fn probe_mirrors() -> Vec<MirrorProbe> {
     let cfg = config::cfg();
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .unwrap_or_else(|_| reqwest::Client::new());
     // Probe a small file that exists on every HF mirror (a known GGUF).
     const PROBE_PATH: &str =
         "/TheBloke/TinyLlama-1.1B-Chat-v0.3-GGUF/resolve/main/00000-ggml-00001.safetensors?download=true";
@@ -105,7 +108,9 @@ pub async fn download(job: &DownloadJob, threads: usize) -> Result<(), anyhow::E
         .await
         .unwrap_or_else(|| config::cfg().hf_endpoint.trim_end_matches('/').to_string());
     let url = rewrite_host(&job.url, &mirror);
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(60))
+        .build()?;
 
     // 1) full range to learn the length.
     let len = client
@@ -127,7 +132,13 @@ pub async fn download(job: &DownloadJob, threads: usize) -> Result<(), anyhow::E
 
     if len == 0 {
         // No ranged support: single-shot download.
-        let bytes = client.get(&url).send().await?.bytes().await?;
+        let resp = client.get(&url).send().await?;
+        anyhow::ensure!(
+            resp.status().is_success(),
+            "download failed with status {}",
+            resp.status()
+        );
+        let bytes = resp.bytes().await?;
         use tokio::io::AsyncWriteExt;
         let mut f = file;
         f.write_all(&bytes).await?;
@@ -135,30 +146,35 @@ pub async fn download(job: &DownloadJob, threads: usize) -> Result<(), anyhow::E
         return Ok(());
     }
 
-    // 2) chunked parallel download.
-    let chunk = (len as usize + threads) / threads;
+    // 2) chunked parallel download. Split [0, len) into contiguous ranges so
+    // every byte is fetched exactly once and no Range extends past EOF.
     let mut handles = Vec::new();
-    for i in 0..threads.min(len as usize) {
-        let start = i * chunk;
-        let end = if i == threads.min(len as usize) - 1 {
-            len - 1
-        } else {
-            (start + chunk - 1).min(len - 1)
-        };
+    for (start, end) in ranges(len, threads) {
         let client = client.clone();
         let url = url.clone();
         let dest = job.dest.clone();
         handles.push(tokio::spawn(async move {
             let resp = client
                 .get(&url)
-                .header("Range", format!("bytes={}-{}", start, end))
+                .header("Range", format!("bytes={start}-{end}"))
                 .send()
                 .await?;
+            // A 200 (instead of 206) means the server ignored Range: each worker
+            // would then write the whole file at a different offset and corrupt it.
+            anyhow::ensure!(
+                resp.status() == reqwest::StatusCode::PARTIAL_CONTENT,
+                "server did not honor the Range request (status {})",
+                resp.status()
+            );
             let body = resp.bytes().await?;
+            anyhow::ensure!(
+                body.len() as u64 == end - start + 1,
+                "unexpected chunk length for bytes={start}-{end}"
+            );
             let mut f = std::fs::OpenOptions::new().write(true).open(&dest)?;
             use std::io::Seek;
             use std::io::SeekFrom;
-            f.seek(SeekFrom::Start(start as u64))?;
+            f.seek(SeekFrom::Start(start))?;
             f.write_all(&body)?;
             Ok::<(), anyhow::Error>(())
         }));
@@ -167,6 +183,24 @@ pub async fn download(job: &DownloadJob, threads: usize) -> Result<(), anyhow::E
         h.await??;
     }
     Ok(())
+}
+
+/// Split `[0, len)` into at most `threads` contiguous, non-overlapping ranges.
+/// A rounded-up fixed chunk (`(len + threads) / threads`) can produce a range
+/// whose start lies beyond EOF; `i*len/n` keeps the last end exactly `len-1`.
+fn ranges(len: u64, threads: usize) -> Vec<(u64, u64)> {
+    let n = threads.clamp(1, 64).min(len as usize);
+    if n == 0 {
+        return Vec::new();
+    }
+    let n = n as u64;
+    (0..n)
+        .map(|i| {
+            let start = i * len / n;
+            let end = (i + 1) * len / n - 1;
+            (start, end)
+        })
+        .collect()
 }
 
 /// Rewrite a file URL's host to point at `mirror_base`, keeping the repo path.
@@ -231,5 +265,20 @@ mod tests {
     fn human_gib_formats() {
         assert_eq!(human_gib(6.6), "6.6 GB");
         assert_eq!(human_gib(12.0), "12.0 GB");
+    }
+
+    #[test]
+    fn ranges_cover_every_byte_once() {
+        for len in [1u64, 2, 7, 1000, 1001] {
+            for threads in [1usize, 3, 32, 64] {
+                let rs = ranges(len, threads);
+                assert!(!rs.is_empty());
+                assert_eq!(rs.first().unwrap().0, 0);
+                assert_eq!(rs.last().unwrap().1, len - 1);
+                for w in rs.windows(2) {
+                    assert_eq!(w[0].1 + 1, w[1].0, "gap/overlap for len={len} threads={threads}");
+                }
+            }
+        }
     }
 }
