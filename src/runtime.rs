@@ -161,11 +161,17 @@ fn resolve_engine(name: &str) -> anyhow::Result<(String, bool)> {
 
 /// Build engine-specific arguments.
 fn build_args(engine: &str, model_dir: &str, weight: &str, port: u16) -> Vec<String> {
-    let _ = weight;
+    // registry::detect_entry stores `weight` relative to model_dir (or empty for
+    // old entries). Using it fixes `run` always loading a hard-coded model.bin.
+    let model_path = format!(
+        "{}/{}",
+        model_dir.trim_end_matches('/'),
+        if weight.is_empty() { "model.bin" } else { weight }
+    );
     match engine {
         "llama.cpp" | "ggml" => vec![
             "-m".into(),
-            format!("{}/{}", model_dir, "model.bin"),
+            model_path,
             "--port".into(),
             port.to_string(),
         ],

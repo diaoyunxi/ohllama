@@ -142,12 +142,20 @@ fn detect_entry(dir: &str) -> Entry {
                 || lower.ends_with(".bin")
                 || lower.ends_with(".onnx");
             if is_meta {
-                let rel = entry.path().to_string_lossy().into_owned();
-                files.push(rel);
+                let full = entry.path().to_string_lossy().into_owned();
+                // Store the weight relative to model_dir: runtime::build_args
+                // joins it back, so nested weight files resolve correctly.
+                let rel = entry
+                    .path()
+                    .strip_prefix(dir)
+                    .unwrap_or(entry.path())
+                    .to_string_lossy()
+                    .into_owned();
+                files.push(full);
                 let s = score_of(&fname);
                 if s > weight_score {
                     weight_score = s;
-                    weight = fname.clone();
+                    weight = rel;
                 }
             }
         }

@@ -64,7 +64,16 @@ pub fn init() {
 
 /// Access the global config.
 pub fn cfg() -> Config {
-    CONFIG.lock().unwrap().clone()
+    let mut c = CONFIG.lock().unwrap().clone();
+    // `HF_ENDPOINT` is documented as an override. Apply it centrally so every
+    // consumer (HF API reads, file listing, download links) sees the same base.
+    if let Ok(v) = std::env::var("HF_ENDPOINT") {
+        let v = v.trim().trim_end_matches('/').to_string();
+        if !v.is_empty() {
+            c.hf_endpoint = v;
+        }
+    }
+    c
 }
 
 /// Persist the current global config.
@@ -173,6 +182,9 @@ pub struct Config {
     pub hf_endpoint: String,
     pub hf_token: String,
     /// Mirrors tried, in order of preference, when picking the fastest one.
+    /// config.toml uses the `mirror_candidates` key (see `toml_string`), so an
+    /// alias is required or the value is silently replaced by the default.
+    #[serde(alias = "mirror_candidates")]
     pub mirrors: Vec<String>,
     pub download_threads: usize,
     /// Default inference engine name (one of `engine::ENGINES`).
@@ -203,5 +215,24 @@ impl Default for Config {
             eta_kv: 0.7,
             context_default: 4096,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mirror_candidates_key_is_read_back() {
+        let mut c = Config::default();
+        c.mirrors = vec![
+            "https://mirror-a.example".into(),
+            "https://mirror-b.example".into(),
+        ];
+        let s = toml_string(&c).unwrap();
+        assert!(s.contains("mirror_candidates"));
+        let v = toml_json(&s).unwrap();
+        let back: Config = serde_json::from_value(v).unwrap();
+        assert_eq!(back.mirrors, c.mirrors);
     }
 }
